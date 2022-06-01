@@ -1,0 +1,395 @@
+{% load static %}
+{% load humanize %}
+<script type="text/javascript">
+
+/// some script
+
+// jquery ready start
+$(document).ready(function() {
+	// jQuery code
+
+
+	$("[data-trigger]").on("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var offcanvas_id =  $(this).attr('data-trigger');
+        $(offcanvas_id).toggleClass("show");
+        $('body').toggleClass("offcanvas-active");
+        $(".screen-overlay").toggleClass("show");
+    });
+
+   	// Close menu when pressing ESC
+    $(document).on('keydown', function(event) {
+        if(event.keyCode === 27) {
+           $(".mobile-offcanvas").removeClass("show");
+           $("body").removeClass("overlay-active");
+        }
+    });
+
+    $(".btn-close, .screen-overlay").click(function(e){
+    	$(".screen-overlay").removeClass("show");
+        $(".mobile-offcanvas").removeClass("show");
+        $("body").removeClass("offcanvas-active");
+
+
+    });
+
+
+}); // jquery end
+
+
+
+</script>
+
+<style type="text/css">
+body.offcanvas-active{
+	overflow:hidden;
+}
+.offcanvas-header{ display:none; }
+.screen-overlay {
+  width:0%;
+  height: 100%;
+  z-index: 30;
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity:0;
+  visibility:hidden;
+  background-color: rgba(34, 34, 34, 0.6);
+  transition:opacity .2s linear, visibility .1s, width 1s ease-in;
+   }
+.screen-overlay.show {
+    transition:opacity .5s ease, width 0s;
+    opacity:1;
+    width:100%;
+    visibility:visible;
+}
+
+@media all and (max-width:992px) {
+
+
+	.offcanvas-header{ display:block; }
+
+	.mobile-offcanvas{
+		visibility: hidden;
+		transform:translateX(-100%);
+	    border-radius:0;
+		display:block;
+	    position: fixed;
+	    top: 0; left:0;
+	    height: 100%;
+	    z-index: 1200;
+	    width:80%;
+	    overflow-y: scroll;
+	    overflow-x: hidden;
+	    transition: visibility .2s ease-in-out, transform .2s ease-in-out;
+	}
+
+	.mobile-offcanvas.show{
+		visibility: visible;
+    	transform: translateX(0);
+	}
+}
+/* Phone */
+@media only screen and (max-width: 1000px) {
+.user_online_indicator {
+    display: flex;
+    float: left;
+    margin-left: 9rem;
+}
+}
+.get {
+    display: flex;
+    margin-left: 1px;
+}
+@media (min-width: 48em) {
+    .get {
+    margin-left: 15px;
+    visibility: hidden;
+    }
+}
+@media (min-width: 48em) {
+    .user_online_indicator {
+        float: left;
+        margin-left: 200px;
+        margin-top: 1px;
+        margin-right: 2px;
+        visibility: hidden;
+    }
+}
+
+body {
+  overflow-x: hidden;
+}
+
+</style>
+<div class="container">
+<nav style="background-color: #f6f9fc !important;" class="bg-light navbar  navbar-expand-lg navbar-light fixed-top mb-5">
+    <div class="form-inline my-2 my-lg-0">
+        <button style="float: left;" type="button" data-toggle="collapse"
+                data-target="#navbarCollapse"
+                data-trigger="#navbar_main" class="d-lg-none navbar-toggler collapsed"
+                aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
+            <style>
+                .navbar-toggler-icon {
+                    display: inline-block;
+                    width: 1em;
+                    height: 1em;
+                    vertical-align: middle;
+                    content: "";
+                    background: no-repeat center center;
+                    background-size: 100% 100%;
+                }
+                .navbar-toggler {
+                    padding: .15rem .55rem;
+                    font-size: 1.25rem;
+                    line-height: 1;
+                    background-color: transparent;
+                    border: 1px solid transparent;
+                    border-radius: .25rem;
+                }
+
+
+            </style>
+        </button>
+        <a class="navbar-brand ml-3 d-flex" href="{% url 'blog_home' %}">
+            <img src="{% static 'images/falcon_LGfm6ox.png' %}" width="50" height="50" alt="">
+            <h2></h2>
+        </a>
+        <a href="{% url 'a_follower_post_view' user %}"
+           class="user_online_indicator text-decoration-none d-flex align-items-center order-lg-3">
+            <img src="{{ user.image.url }}" width="40" height="40" class="rounded-circle mr-2 user-image" alt="">
+            <div class="badge badge-success shadow badge-counter rounded-circle user_badge" style="margin-left: 29px;">
+
+            </div>
+            <style>
+                .user-image {
+                    position:relative;
+                }
+                .user_badge {
+                    border-radius:50%;
+                    border: 1px white solid;
+                    position:absolute;
+                    top:18px;
+
+                    width: 12px;
+                    height: 12px;
+                }
+
+
+            </style>
+        </a>
+        <button data-target="#searchModal" class="btn btn-sm btn-outline-secondary get mini_screen_search" data-toggle="modal">
+            <svg data-toggle="modal" width="1em" height="1em" viewBox="0 0 16 16"
+                 data-target="#search" class="bi bi-search" fill="currentColor"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z"/>
+                <path fill-rule="evenodd"
+                      d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
+            </svg>
+        </button>
+    </div>
+    <div class="form-inline my-2 my-lg-0">
+    </div>
+    <nav id="navbar_main" class="mobile-offcanvas navbar navbar-expand-lg navbar-light bg-light"
+         style="background-color: #f6f9fc !important;">
+        <div class="offcanvas-header">
+            <h3 class="btn-close float-right"></h3>
+            <div class="form-inline my-2 my-lg-0">
+                <a href="{% url 'a_follower_post_view' user %}" class="text-decoration-none">
+                    <img width="50px" height="50px" style="object-fit: cover; border-radius: 20px solid #ececec"
+                         class="ml-1 border  rounded-circle account-img" alt="customer pics"
+                         src="{{ user.image.url }}">
+                    <h4><strong>{{user.username}}</strong></h4>
+                </a>
+            </div>
+            <b>{{ user.follower.count|intword }}</b> Followers &bull; <b>
+            {{ user.following.count|intword}}</b> Following
+        </div>
+        <hr class="my-3">
+        <div class="d-lg-none">
+            <ul class="navbar-nav">
+                <li class="nav-item active"><a class="nav-link" href="/">HOME </a></li>
+                <li class="nav-item"><a class="nav-link" href=""> ABOUT US </a></li>
+                <li class="nav-item"><a class="nav-link" href=""> PRICING </a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'a_follower_post_view' user %}"> PROFILE </a></li>
+
+                <li class="nav-item"><a class="nav-success btn btn-block btn-info" href="{% url 'logout' %}">
+                    LOGOUT </a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <style>
+        @media only screen and (max-width: 1000px) {
+            .hide_nav {
+                display: none;
+            }
+        }
+
+
+    </style>
+    <div class="navbar-collapse mr-auto order-lg-2 collapse hide_nav" id="navbarCollapse" style="">
+        <hr class="my-3">
+        <!-- Primary menu-->
+        <div class="collapse d-flex navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar d-flex navbar-nav float-left me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/"></a>
+                </li>
+                {% if request.user.is_authenticated %}
+
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">login</a>
+                </li>
+                {% endif %}
+            </ul>
+            <form class="d-flex" method="get" action="{% url 'search' %}">
+                <a href="{% url 'a_follower_post_view' request.user %}">
+                <img src="{{ user.image.url }}" width="40" height="40" class="rounded-circle mr-2 user-image" alt=""></a>
+                <div class="badge badge-success shadow badge-counter rounded-circle user_badge"
+                     style="margin-left: 29px;">
+
+                </div>
+                <style>
+                    .user-image {
+                        position:relative;
+                    }
+                    .user_badge {
+                        border-radius:50%;
+                        border: 1px white solid;
+                        position:absolute;
+                        top:18px;
+
+                        width: 12px;
+                        height: 12px;
+                    }
+
+
+                </style>
+                <button type="button" data-target="#postModal" data-toggle="modal" class="btn btn-info mr-2">Create Post
+                </button>
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="btn btn-info mr-2">Logout
+                </a>
+                {% else %}
+                {% endif %}
+            </form>
+
+        </div>
+    </div>
+</nav></div>
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="container-fluid">
+<!--                    <form class="display-inline my-2 mr-sm-2 my-lg-0" action="{% url 'search' %}" -->
+<!--                          autocomplete="on" method="GET" value="{{request.GET.q}}">-->
+<!--                        <input type="text" name="q" value="{{request.GET.q}}" class="form-control mb-2"-->
+<!--                           placeholder="Search posts"/>-->
+<!--                        <button class="btn btn-secondary btn-block my-sm-0" style="display: none" type="submit">SEARCH</button>-->
+<!--                    </form>-->
+                    <form action="{% url 'search' %}" autocomplete="off" method="GET" value="{{request.GET.q}}">
+                        <input type="text" name="q" value="{{request.GET.q}}" class="form-control"
+                               placeholder="Search posts"/>
+                        <div class="autocomplete" style="width:300px; display:none;">
+                            <input type="submit" name="submit" value="Search"/>
+                        </div>
+                    </form>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="container-fluid">
+                    <div class="media">
+                        <img class="rounded-circle article-img" style="width:70px; height: 70px;" src="{{ user.image.url }}" alt="">
+                        <div class="media-body mt-2">
+                            <form id="create-form" class="display-inline my-2 mr-sm-2 my-lg-0" action="{% url 'push_feed' %}"
+                                  method="POST" onsubmit="return feed_it()" enctype="multipart/form-data">
+                                <input type="hidden" id="csrf" name="csrf" value="{{ csrf_token }}"/>
+                                {% csrf_token %}
+                                <textarea name="content" type="text" required aria-required="true" class="form-control" id="content"
+                                          placeholder="Create post?" rows="3">
+                                </textarea>
+
+                                <label for="upload-photo" class="mb-2 mt-1 d-flex">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                     fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
+                                      <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                      <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+                                    </svg>
+                                </label>
+                                <input type="file" multiple name="photo" id="upload-photo"/>
+
+                                <style>
+                                    label {
+                                       cursor: pointer;
+                                       margin-left: 5px;
+                                       /* Style as you please, it will become the visible UI component. */
+                                    }
+
+                                    #upload-photo {
+                                       opacity: 0;
+                                       position: absolute;
+                                       z-index: -1;
+                                    }
+
+                                </style>
+
+                                <button class="btn btn-info btn-block my-sm-0" type="submit">POST</button>
+
+                            </form>
+                            <br>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
+<script>
+
+    let paymentForm = document.getElementById('create-form');
+	if (paymentForm) {
+		paymentForm.addEventListener('submit', function () {
+		    console.log("signup button clicked");
+			changeLoadingState(true);
+
+	    }
+	  );
+	}
+
+    var changeLoadingState = function(isLoading) {
+        if (isLoading) {
+            document.getElementById("submit").disabled = true;
+            document.querySelector("#spinner").classList.remove("hidden");
+            document.querySelector("#button-text").classList.add("hidden");
+        } else {
+            document.getElementById("submit").disabled = false;
+            document.querySelector("#spinner").classList.add("hidden");
+            document.querySelector("#button-text").classList.remove("hidden");
+        }
+    };
+
+</script>
