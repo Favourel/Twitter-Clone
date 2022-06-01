@@ -1,0 +1,583 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load mentions %}
+{% block title %} {{ object.author }}: "{{ object.content|truncatewords:"3" }}" {% endblock %}
+
+{% block content %}
+
+<div class="col-lg-6">
+    {% if messages %}
+    {% for msg in messages %}
+    <div id="overlay" class="alert alert-{{ msg.tags }}  fade show" role="alert">
+        <b id="msg-text">
+            {% if msg.tags == 'error' %}
+            <svg width="1.4rem" height="1.4rem" class="ml-3" viewBox="0 0 1792 1792"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill="#dd4646"
+                      d="M1277 1122q0-26-19-45l-181-181 181-181q19-19 19-45 0-27-19-46l-90-90q-19-19-46-19-26 0-45 19l-181 181-181-181q-19-19-45-19-27 0-46 19l-90 90q-19 19-19 46 0 26 19 45l181 181-181 181q-19 19-19 45 0 27 19 46l90 90q19 19 46 19 26 0 45-19l181-181 181 181q19 19 45 19 27 0 46-19l90-90q19-19 19-46zm387-226q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"/>
+            </svg>
+            {% endif %}
+            {% if msg.tags == 'success' %}
+            <svg width="1.4rem" height="1.4rem" class="ml-3" viewBox="0 0 1792 1792"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill="#70bf2b"
+                      d="M1412 734q0-28-18-46l-91-90q-19-19-45-19t-45 19l-408 407-226-226q-19-19-45-19t-45 19l-91 90q-18 18-18 46 0 27 18 45l362 362q19 19 45 19 27 0 46-19l543-543q18-18 18-45zm252 162q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"/>
+            </svg>
+            {% endif %}
+            {% if msg.tags == 'info' %}
+            <svg width="1.4rem" height="1.4rem" class="ml-3" viewBox="0 0 1792 1792"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill="#efb80b"
+                      d="M1024 1375v-190q0-14-9.5-23.5t-22.5-9.5h-192q-13 0-22.5 9.5t-9.5 23.5v190q0 14 9.5 23.5t22.5 9.5h192q13 0 22.5-9.5t9.5-23.5zm-2-374l18-459q0-12-10-19-13-11-24-11h-220q-11 0-24 11-10 7-10 21l17 457q0 10 10 16.5t24 6.5h185q14 0 23.5-6.5t10.5-16.5zm-14-934l768 1408q35 63-2 126-17 29-46.5 46t-63.5 17h-1536q-34 0-63.5-17t-46.5-46q-37-63-2-126l768-1408q17-31 47-49t65-18 65 18 47 49z"/>
+            </svg>
+
+            {% endif %}
+            {{ msg|upper }}
+        </b>
+
+    </div>
+    {% endfor %}
+    {% endif %}
+    <div class="box-element">
+        <div class="content-section">
+            <div class="media">
+                <a href="{% url 'a_follower_post_view' object.author %}">
+                    <img class="rounded-circle article-img" src="{{ object.author.image.url }}" alt="">
+                </a>
+                <div class="media-body mt-2">
+                    <a href="{% url 'a_follower_post_view' object.author %}" class="text-decoration-none">
+                        <strong class="account-heading text-dark">
+                            {% if object.author.display_name %}
+                            {{ object.author.display_name }}
+                            {% else %}
+                            {{ object.author }}
+                            {% endif %}
+                            {% if object.author.is_verified %}
+                            <img width="15px" height="15px" class="mb-1"
+                               src="{% static 'images/verify.png' %}" alt="">
+                            {% endif %}
+                        </strong>
+                    </a>
+
+                    <br>
+                    {% if request.user == object.author %}
+                    <button type="button" data-target="#postDeleteModal" data-toggle="modal"
+                            class="btn btn-info mr-2 float-right">Delete Post
+                    </button>
+                    {% endif %}
+                    <!--<button class="btn btn-outline-primary float-right">follow</button>-->
+                    <a href="{% url 'a_follower_post_view' object.author %}" class="text-decoration-none">
+                        <p class="text-secondary">@{{ object.author }}</p>
+                    </a>
+                </div>
+            </div>
+            <h5 class="mt-2">{{ object.content|safe|mentions|hashtags }}</h5>
+            <div class="row p-2 br-2">
+                {% for image in object.blogimages_set.all %}
+                <div class="col-6 p-1">
+                    <img width="100%" height="100%" src="{{image.image.url}}" alt="">
+                </div>
+                {% endfor %}
+            </div>
+            <hr>
+            <p>{{ object.date_posted|time }} &bull; {{ object.date_posted|date }}</p>
+            <hr class="my-2">
+            <span class="d-flex">
+                <div data-toggle="tooltip" data-placement="top" title="Click to view liked by"
+                     style="cursor: pointer" onclick="openCity(event, 'Likes')" class="tablinks">
+                    <b class="_result">{{object.like.count|intword}}</b>
+                    {% if object.like.count > 1 %}Likes {% else %} Like
+                    {% endif %}
+                </div>
+                <div class="ml-3">
+                    <b> {{ object.blogcomment_set.count|intword }} </b>Comments
+
+                    <a class="text-dark ml-3" href="{{object.get_repost_url}}">
+                        <b data-target="#postReposModal" data-toggle="modal">
+                            {{ object.blogrepost_set.count|intword }}
+                        </b>
+                    </a>
+                    {% if object.blogrepost_set.count > 1 %}Reposts
+                    {% else %} Repost {% endif %}
+                </div>
+            </span>
+            <style>
+                 label{display: none;}
+            </style>
+            <hr class="my-2">
+            <div class="row" align="center">
+                <div class="col-lg-4 col-4">
+                    <a class=" like-btn" data-toggle="tooltip" data-placement="top"
+                            title="Like" data- data-href='{{ object.get_api_like_url }}' style="cursor: pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                             class="bi bi-hand-thumbs-up" viewBox="0 0 16 16">
+                            <path d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464.201-.263.38-.578.488-.901.11-.33.172-.762.004-1.149.069-.13.12-.269.159-.403.077-.27.113-.568.113-.857 0-.288-.036-.585-.113-.856a2.144 2.144 0 0 0-.138-.362 1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272-.847-.282-1.803-.276-2.516-.211a9.84 9.84 0 0 0-.443.05 9.365 9.365 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111L8.864.046zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65 1.095-.3 1.977-.996 2.614-1.708.635-.71 1.064-1.475 1.238-1.978.243-.7.407-1.768.482-2.85.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725.5.5 0 0 0 .595.644l.003-.001.014-.003.058-.014a8.908 8.908 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164.175.058.45.3.57.65.107.308.087.67-.266 1.022l-.353.353.353.354c.043.043.105.141.154.315.048.167.075.37.075.581 0 .212-.027.414-.075.582-.05.174-.111.272-.154.315l-.353.353.353.354c.047.047.109.177.005.488a2.224 2.224 0 0 1-.505.805l-.353.353.353.354c.006.005.041.05.041.17a.866.866 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-4">
+                    <img onclick="openForm()" data-toggle="tooltip" data-placement="top" title="Comment" style="cursor: pointer"
+                         src="{% static 'images/comment (2).png' %}" class="comment mb-" width="25" height="25" alt="">
+                </div>
+                <div class="col-lg-4 col-4">
+                    <a class="text-dark" href="{{object.get_repost_url}}">
+                    <img data-toggle="tooltip" data-placement="top" title="Repost" style="cursor: pointer"
+                             src="{% static 'images/retweet (1).png' %}" class="mb-" width="25" height="25" alt=""></a>
+                </div>
+                <style>
+                    #comment_option{display: none}
+                </style>
+                <script>
+                    $(".comment").click(function(){
+                      $("#comment_option").toggle();
+                    });
+                </script>
+            </div>
+
+            <form class="my-ajax-form" data-toggle="tooltip" data-placement="top" title="Comment"
+                  id="comment_option" data-url="{% url 'blog_comment' object.id %}"
+                  action="." method="post">{% csrf_token %}
+                <hr>
+                {{form|crispy}}
+                <button class="btn btn-info" type="submit" style="display: none;">comment</button>
+            </form>
+            <hr>
+            <div id="comment"></div>
+            {% for comment in comments %}
+            <div class="media">
+                <a href="{% url 'a_follower_post_view' comment.user %}" class="text-decoration-none text-dark">
+                    <img class="rounded-circle article-img mr-2" style="width: 50px;height:50px"
+                        src="{{ comment.user.image.url }}" alt="">
+                </a>
+                <div class="media-body">
+                    <a href="{% url 'a_follower_post_view' comment.user %}" class="text-decoration-none text-dark">
+                        <strong class="account-heading">
+                            {% if comment.user.display_name %}
+                            {{ comment.user.display_name }}
+                            {% else %}
+                            {{ comment.user.username }}
+                            {% endif %}
+                            {% if comment.user.is_verified %}
+                                <img width="15px" height="15px" class="mb-1"
+                                   src="{% static 'images/verify.png' %}" alt="">
+                                {% endif %}
+                        </strong>
+                    </a>
+                    Replying to
+                    <b>
+                        @{{ comment.post.author }}
+                        {% if comment.post.author.is_verified %}
+                            <img width="15px" height="15px" class="mb-1"
+                               src="{% static 'images/verify.png' %}" alt="">
+                            {% endif %}
+                    </b>{{ comment.date_posted|date:"M d y" }}
+                    <p class="mb-1">{{ comment.comment|safe|mentions|hashtags }}</p>
+
+<!--                    <a class="like-btn" data-toggle="tooltip" data-placement="top"-->
+<!--                            title="Like" data- data-href='{{ object.get_api_like_url }}' style="cursor: pointer">-->
+<!--                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"-->
+<!--                             class="bi bi-hand-thumbs-up" viewBox="0 0 16 16">-->
+<!--                            <path d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464.201-.263.38-.578.488-.901.11-.33.172-.762.004-1.149.069-.13.12-.269.159-.403.077-.27.113-.568.113-.857 0-.288-.036-.585-.113-.856a2.144 2.144 0 0 0-.138-.362 1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272-.847-.282-1.803-.276-2.516-.211a9.84 9.84 0 0 0-.443.05 9.365 9.365 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111L8.864.046zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65 1.095-.3 1.977-.996 2.614-1.708.635-.71 1.064-1.475 1.238-1.978.243-.7.407-1.768.482-2.85.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725.5.5 0 0 0 .595.644l.003-.001.014-.003.058-.014a8.908 8.908 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164.175.058.45.3.57.65.107.308.087.67-.266 1.022l-.353.353.353.354c.043.043.105.141.154.315.048.167.075.37.075.581 0 .212-.027.414-.075.582-.05.174-.111.272-.154.315l-.353.353.353.354c.047.047.109.177.005.488a2.224 2.224 0 0 1-.505.805l-.353.353.353.354c.006.005.041.05.041.17a.866.866 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"/>-->
+<!--                        </svg>Like-->
+
+<!--                    </a><b class="ml-5">1 like</b>-->
+                </div>
+            </div>
+            <hr class="my-1">
+            {% endfor %}
+        </div>
+    </div>
+    <br>
+    <br>
+</div>
+
+<div class="col-lg-3">
+    <div class="box-element">
+        <form action="{% url 'search' %}" autocomplete="off" method="GET" value="{{request.GET.q}}">
+            <input type="text" name="q" value="{{request.GET.q}}" class="form-control"
+                   placeholder="Search posts"/>
+            <div class="autocomplete" style="width:300px; display:none;">
+                <input type="submit" name="submit" value="Search"/>
+            </div>
+        </form>
+    </div>
+    <br>
+    <div class="box-element">
+        <h4 class="mb-3"><strong>Relevant people</strong></h4>
+        <div class="media">
+            <a href="{% url 'a_follower_post_view' object.author %}">
+                <img class="rounded-circle article-img" src="{{ object.author.image.url }}" alt="">
+            </a>
+            <div class="media-body">
+                <div class="dropdown">
+                    <a href="{% url 'a_follower_post_view' object.author %}" class="text-decoration-none text-dark">
+                        <strong class="account-heading">
+                            {% if object.author.display_name %}
+                            {{ object.author.display_name }}
+                            {% else %}
+                            {{ object.author }}
+                            {% endif %}
+                            {% if object.author.is_verified %}
+                            <img width="15px" height="15px" class="mb-1"
+                               src="{% static 'images/verify.png' %}" alt="">
+                            {% endif %}
+                        </strong>
+                    </a>
+                    <div style="float:left;"
+                         class="dropdown-content flex animated--grow-in dropdown-menu fade_ dropdown-menu-right">
+                        <div class="row">
+                            <div class="col-3">
+                                <a href="{% url 'a_follower_post_view' object.author %}">
+                                    <img src="{{ object.author.image.url }}" alt="Avatar"
+                                         class="rounded-circle account-img">
+                                </a>
+                            </div>
+                            <div class="float-right col-9 g-3">
+                                {% if request.user == object.author %}
+                                <a class="float-right btn btn-outline-info"
+                                   href="{% url 'a_follower_post_view' object.author %}">Edit
+                                    profile
+                                </a>
+                                {% elif object.author in request.user.following.all %}
+                                <a data-href="{% url 'follower-api' object.author %}"
+                                   class="btn btn-info follow-btn text-light btn-md float-right">Following
+                                </a>
+                                {% else %}
+                                <a data-href="{% url 'follower-api' object.author %}"
+                                   class="btn btn-outline-info follow-btn btn-md float-right">Follow
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <style>
+                            .author_img {
+                                border-radius: 10px;
+                                display: block;
+                                margin-left: 10px;
+                                width: 50px;
+                            }
+
+
+                        </style>
+
+                        <strong class="flex mt-2 text-truncate">
+                            {% if object.author.display_name %}
+                            {{ object.author.display_name }}
+                            {% else %}
+                            {{ object.author }}
+                            {% endif %}
+                            {% if object.author.is_verified %}
+                            <img width="15px" height="15px" class="mb-1"
+                               src="{% static 'images/verify.png' %}" alt="">
+                            {% endif %}
+                        </strong>
+                        <h6>
+                            @{{ object.author.username }}
+                        </h6>
+                        <p>{{ object.author.post_set.count|intword }} posts added</p>
+                        {% if object.author.about %}
+                        <p>{{ object.author.about }}</p>
+                        {% endif %}
+                        <hr>
+                        <b>{{ object.author.follower.count|intword }}</b> Followers &bull; <b>
+                        {{ object.author.following.count|intword}}</b> Following
+                    </div>
+                </div>
+                <p class="text-secondary mb-1 text-truncate">@{{ object.author }}</p>
+                <p class="text-secondary">{{ object.author.about }}</p>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="box-element tabcontent" id="Likes">
+        <h4 class="mb-3"><strong>Liked by</strong></h4>
+        {% if obj_likes %}
+        {% for list in obj_likes %}
+        <div class="media mt-2">
+
+            <div class="dropdown">
+                <a href="{% url 'a_follower_post_view' list %}">
+                    <img class="rounded-circle" style="width:50px;height:50px" src="{{ list.image.url }}"
+                         alt="">
+                </a>
+                <div style="float:left;"
+                     class="dropdown-content flex animated--grow-in dropdown-menu fade_ dropdown-menu-right">
+                    <div class="row">
+                        <div class="col-3">
+                            <a href="{% url 'a_follower_post_view' list %}">
+                                <img src="{{ list.image.url }}" alt="Avatar"
+                                     class="rounded-circle account-img">
+                            </a>
+                        </div>
+                        <div class="float-right col-9 g-3">
+                            {% if request.user == list %}
+                            <a class="float-right btn btn-sm btn-outline-info"
+                               href="{% url 'a_follower_post_view' list %}">Edit
+                                profile
+                            </a>
+                            {% elif list in request.user.following.all %}
+                            <a data-href="{% url 'follower-api' list %}"
+                               class="btn btn-info follow-btn text-light btn-sm float-right">Following
+                            </a>
+                            {% else %}
+                            <a data-href="{% url 'follower-api' list %}"
+                               class="btn btn-outline-info follow-btn btn-sm float-right"
+                               id="follow-buttonn">Follow
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <style>
+                        .author_img {
+                            border-radius: 10px;
+                            display: block;
+                            margin-left: 10px;
+                            width: 50px;
+                        }
+                    </style>
+
+                    <strong class="flex mt-2">
+                        {% if list.display_name %}
+                        {{ list.display_name }}
+                        {% else %}
+                        {{ list }}
+                        {% endif %}
+                        {% if list.is_verified %}
+                            <img width="15px" height="15px" class="mb-1"
+                               src="{% static 'images/verify.png' %}" alt="">
+                            {% endif %}
+                    </strong>
+                    <h6>
+                        @{{ list.username }}
+                    </h6>
+                    <p>{{ list.post_set.count|intword }} posts added</p>
+                    {% if list.about %}
+                    <p>{{ list.about|safe|truncatewords:15 }}</p>
+                    {% endif %}
+                    <hr>
+                    <b>{{ list.follower.count|intword }}</b> Followers &bull; <b>
+                    {{ list.following.count|intword}}</b> Following
+                </div>
+            </div>
+            <div class="media-body mt-">
+                <div class="dropdown">
+                    <a href="{% url 'a_follower_post_view' list %}" class="text-decoration-none text-dark">
+                        <strong class="account-heading ml-2">
+                            {% if list.display_name %}
+                            {{ list.display_name|safe|truncatechars:"11" }}
+                            {% else %}
+                            {{ list.username|safe|truncatechars:"11" }}
+                            {% endif %}
+                            {% if list.is_verified %}
+                            <img width="15px" height="15px" class="mb-1"
+                               src="{% static 'images/verify.png' %}" alt="">
+                            {% endif %}
+                        </strong>
+                    </a>
+                    <div style="float:left;"
+                         class="dropdown-content flex animated--grow-in dropdown-menu fade_ dropdown-menu-right">
+                        <div class="row">
+                            <div class="col-3">
+                                <a href="{% url 'a_follower_post_view' list %}">
+                                    <img src="{{ list.image.url }}" alt="Avatar"
+                                         class="rounded-circle account-img">
+                                </a>
+                            </div>
+                            <div class="float-right col-9 g-3">
+                                {% if request.user == list %}
+                                <a class="float-right btn btn-outline-info"
+                                   href="{% url 'a_follower_post_view' list %}">Edit
+                                    profile
+                                </a>
+                                {% elif list in request.user.following.all %}
+                                <a data-href="{% url 'follower-api' list %}"
+                                   class="btn btn-info follow-btn text-light btn-md float-right">Following
+                                </a>
+                                {% else %}
+                                <a data-href="{% url 'follower-api' list %}"
+                                   class="btn btn-outline-info follow-btn btn-md float-right">Follow
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <style>
+                            .author_img {
+                                border-radius: 10px;
+                                display: block;
+                                margin-left: 10px;
+                                width: 50px;
+                            }
+                        </style>
+
+                        <strong class="flex mt-2">
+                            {% if list.display_name %}
+                            {{ list.display_name }}
+                            {% else %}
+                            {{ list }}
+                            {% endif %}
+                            {% if list.is_verified %}
+                                <img width="15px" height="15px" class="mb-1"
+                                   src="{% static 'images/verify.png' %}" alt="">
+                                {% endif %}
+                        </strong>
+                        <h6>
+                            @{{ list.username }}
+                        </h6>
+                        <p>{{ list.post_set.count|intword }} posts added</p>
+                        {% if list.about %}
+                        <p>{{ list.about }}</p>
+                        {% endif %}
+                        <hr>
+                        <b>{{ list.follower.count|intword }}</b> Followers &bull; <b>
+                        {{ list.following.count|intword}}</b> Following
+                    </div>
+                </div>
+
+                {% if request.user == list %}
+                <a class="float-right btn btn-sm btn-info"
+                   href="{% url 'a_follower_post_view' list %}">Edit
+                    profile
+                </a>
+                {% elif list in request.user.following.all %}
+                <a data-href="{% url 'follower-api' list %}"
+                   class="btn btn-info follow-btn text-light btn-sm float-right">Following
+                </a>
+                {% elif request.user in list.following.all %}
+                    <a data-href="{% url 'follower-api' list %}"
+                       class="btn btn-outline-info follow-btn btn-sm float-right">Follow back
+                    </a>
+                {% else %}
+                <a data-href="{% url 'follower-api' list %}"
+                   class="btn btn-outline-info follow-btn btn-sm float-right">Follow
+                </a>
+                {% endif %}
+                <p class="account-heading ml-2 text-truncate">@{{ list|safe|truncatechars:"15" }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <h5>Nothing to see here because the post hasn't been liked</h5>
+        {% endif %}
+    </div>
+    <br>
+    <style>
+        .tabcontent {
+          display: none;
+          border-top: none;
+        }
+
+        /* Dropdown Button */
+
+        /* The container <div> - needed to position the dropdown content */
+        .dropdown {
+          position: relative;
+          display: inline-block;
+        }
+
+        /* Dropdown Content (Hidden by Default) */
+        .dropdown-content {
+          display: none;
+          position: absolute;
+          background-color: #fff;
+          width: 17rem;
+          box-shadow: hsl(0, 0%, 80%) 0 0 16px;
+          border-radius: 10px;
+          padding: 8px;
+          text: flex;
+        }
+
+        .dropdown .dropdown-menu.fade_ {
+            animation-name: dropdownAnimation;
+            animation-duration: 0.5s;
+            animation-iteration-count: 1;
+            animation-timing-function: ease;
+            animation-fill-mode: forwards;
+        }
+        @keyframes dropdownAnimation {
+            0% {
+                opacity: 0;
+                transform: translateY(58px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0px);
+            }
+        }
+
+        /* Show the dropdown menu on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+            text: flex;
+
+            }
+    </style>
+</div>
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+</script>
+<div class="modal fade" id="postUpdateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="container-fluid">
+                    <div class="media">
+                        <img class="rounded-circle article-img" style="width:70px; height: 70px;"
+                             src="{{ user.image.url }}" alt="">
+                        <div class="media-body mt-2">
+                            <form class="display-inline my-2 mr-sm-2 my-lg-0" action=""
+                                  method="POST">
+                                {% csrf_token %}
+                                {{ form }}
+                                <br>
+                                <button class="btn btn-info btn-block my-sm-0" type="submit">POST</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="postDeleteModal" tabindex="-3" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="background-color: #f6f9fc !important">
+            <div class="modal-body">
+                <form action="{{ object.get_absolute_url }}" method="post">
+                    {% csrf_token %}
+                    <h6>Are you sure you want to delete <b style="color: #007bff">
+                        {{ object.content|safe|truncatechars:"10" }}</b> from
+                        your
+                        Blog?</h6>
+                    <div class="float-right">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel
+                        </button>
+                        <input type="submit" value="Confirm" class="btn btn-info">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

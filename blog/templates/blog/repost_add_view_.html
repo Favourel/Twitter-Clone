@@ -1,0 +1,103 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+{% load static %}
+{% load subtract %}
+{% load mentions %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+
+<div class="col-lg-6">
+    <div class="box-element">
+        <div class="media">
+            <img class="rounded-circle article-img" style="width:70px; height: 70px;"
+                 src="{{ user.image.url }}" alt="">
+
+            <div class="media-body mt-2">
+                <div class="box-element">
+                    <div class="media">
+                        <img class="rounded-circle article-img" style="width:50px; height: 50px;"
+                             src="{{ obj.user.image.url }}" alt="">
+                        <div class="media-body mt-2">
+                            <strong class="account-heading dropbtn">
+                                {{ obj.user }} &bull; {{ obj.date_posted|naturaltime }}
+                            </strong>
+                            <br>
+                        </div>
+                    </div>
+                    <a class="text-decoration-none text-dark" href="{{ obj.get_repost_absolute_url }}">
+                        <p>{{ obj.text|safe|mentions|hashtags }}</p>
+                    </a>
+                </div>
+                <br>
+                <form id="Repost-form" class="display-inline my-2 mr-sm-2 my-lg-0" action="{% url 'repost_add_view-' obj.pk %}"
+                      method="POST">
+                    {% csrf_token %}
+                    {{form|crispy}}
+                    <br>
+                    <button style="border-radius: 24px" id="submit" type="submit" class="btn btn-block btn-info">
+                        <div class="spinner-border text-light hidden" id="spinner" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <span id="button-text">REPOST</span>
+                    </button>
+
+                    <style>
+                        .hidden {
+                            display: none;
+                        }
+
+                        .spinner-border {
+                            width: 1.5rem;
+                            height: 1.5rem;
+                        }
+                    </style>
+<!--                                        <button class="btn btn-info btn-block my-sm-0" type="submit"></button>-->
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    let paymentForm = document.getElementById('Repost-form');
+	if (paymentForm) {
+		paymentForm.addEventListener('submit', function () {
+		    console.log("login button clicked");
+			changeLoadingState(true);
+
+	    }
+	  );
+	}
+
+    var changeLoadingState = function(isLoading) {
+        if (isLoading) {
+            document.getElementById("submit").disabled = true;
+            document.querySelector("#spinner").classList.remove("hidden");
+            document.querySelector("#button-text").classList.add("hidden");
+        } else {
+            document.getElementById("submit").disabled = false;
+            document.querySelector("#spinner").classList.add("hidden");
+            document.querySelector("#button-text").classList.remove("hidden");
+        }
+    };
+</script>
+<div class="col-lg-3 col-md-3">
+    <div class="box-element">
+        <form action="{% url 'search' %}" autocomplete="off" method="GET" value="{{request.GET.q}}">
+            <input type="text" name="q" value="{{request.GET.q}}" class="form-control"
+                   placeholder="Search posts"/>
+            <div class="autocomplete" style="width:300px; display:none;">
+                <input type="submit" name="submit" value="Search"/>
+            </div>
+        </form>
+    </div>
+    <br>
+</div>
+<style>
+    label {display: none}
+
+</style>
+
+{% endblock %}

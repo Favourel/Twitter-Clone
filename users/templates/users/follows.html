@@ -1,0 +1,186 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+{% load static %}
+{% load subtract %}
+
+
+{% block content %}
+<div class="col-lg-6">
+    <div class="box-element">
+        <div class="tab row mt-2">
+            <div class="col-lg-6 col-6">
+                <button class="tablinks" id="defaultOpen" onclick="openCity(event, 'Paris')">
+                    <b>{{ follower.count }} Follower</b>
+                </button>
+            </div>
+            <div class="col-lg-6 col-6" id="Following">
+                <button class="tablinks" onclick="openCity(event, 'Tokyo')">
+                    <b>{{ following.count }} Following</b>
+                </button>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <div id="Paris" class="tabcontent">
+        {% for follow in follower %}
+        <div class="box-element mb-3">
+            <div class="content-section">
+                <div class="media mt-2">
+                    <a href="{% url 'a_follower_post_view' follow %}">
+                        <img class="rounded-circle" style="width:50px;height:50px" src="{{ follow.image.url }}"
+                             alt="">
+                    </a>
+                    <div class="media-body">
+                        <a href="{% url 'a_follower_post_view' follow %}" class="text-decoration-none text-dark">
+                            <strong class="account-heading ml-2">
+                                {% if follow.display_name %}
+                                {{ follow.display_name }}
+                                {% else %}
+                                {{follow}}
+                                {% endif %}
+                                {% if follow.is_verified %}
+                            <img width="15px" height="15px" class="mb-1"
+                               src="{% static 'images/verify.png' %}" alt="">
+                            {% endif %}
+                            </strong>
+                        </a>
+
+                        {% if follow in request.user.following.all %}
+                        <button style="border-radius:13px;" data-href="{% url 'follower-api' follow %}"
+                                class="btn follow-btn btn-info btn-sm float-right" id="follow-btn">Following
+                        </button>
+                        {% else %}
+                        <a data-href="{% url 'follower-api' follow %}" style="border-radius:13px;"
+                           class="btn btn-outline-info follow-btn btn-sm float-right"
+                           id="follow-buttonn">Follow
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'a_follower_post_view' follow %}" class="text-decoration-none text-dark">
+                            <p class="account-heading ml-2 mb-1">@{{ follow }}</p>
+                            <p class="account-heading ml-2">{{ follow.about }}</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div id="Tokyo" class="tabcontent">
+        {% for follow in following %}
+        <div class="box-element mb-3">
+            <div class="content-section">
+                <div class="media mt-2">
+                    <a href="{% url 'a_follower_post_view' follow %}">
+                        <img class="rounded-circle" style="width:50px;height:50px" src="{{ follow.image.url }}"
+                             alt="">
+                    </a>
+                    <div class="media-body">
+                        <a href="{% url 'a_follower_post_view' follow %}" class="text-decoration-none text-dark">
+                            <strong class="account-heading ml-2">
+                                {% if follow.display_name %}
+                                {{ follow.display_name }}
+                                {% else %}
+                                {{follow}}
+                                {% endif %}
+                                {% if follow.is_verified %}
+                            <img width="15px" height="15px" class="mb-1"
+                               src="{% static 'images/verify.png' %}" alt="">
+                            {% endif %}
+                            </strong>
+                        </a>
+                        {% if request.user.is_authenticated %}
+                        {% if follow in request.user.following.all %}
+                        <button style="border-radius:13px;" data-href="{% url 'follower-api' follow %}"
+                                class="btn follow-btn btn-info btn-sm float-right" id="follow-bt">Following
+                        </button>
+                        {% else %}
+                        <a data-href="{% url 'follower-api' follow %}" style="border-radius:13px;"
+                           class="btn btn-outline-info follow-btn btn-sm float-right"
+                           id="follow-button">Follow
+                        </a>
+                        {% endif %}
+                        {% endif %}
+                        <a href="{% url 'a_follower_post_view' follow %}" class="text-decoration-none text-dark">
+                            <p class="account-heading ml-2 mb-1">@{{ follow }}</p>
+                            <p class="account-heading ml-2">{{ follow.about }}</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="col-lg-3">
+    <div class="box-element">
+        <form action="{% url 'search' %}" autocomplete="off" method="GET" value="{{request.GET.q}}">
+            <input type="text" name="q" value="{{request.GET.q}}" class="form-control"
+                   placeholder="Search Elodimuor"/>
+            <div class="autocomplete" style="width:300px; display:none;">
+                <input type="submit" name="submit" value="Search"/>
+            </div>
+        </form>
+    </div>
+    <br>
+</div>
+<style>
+
+/* Style the tab */
+.tab {
+  overflow: auto;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  transition: .3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-colo: #007bff !important;
+  color: #17a2b8 !important;
+  border-bottom: 3px solid #17a2b8;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  border-top: none;
+}
+
+</style>
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+</script>
+<script>
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+{% endblock %}

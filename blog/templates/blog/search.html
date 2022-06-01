@@ -1,0 +1,534 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+{% load static %}
+{% load mentions %}
+{% block title %} "{{ request.GET.q }}" | Elodimuor Search {% endblock %}
+
+
+{% block content %}
+<div class="col-lg-6">
+    {% if messages %}
+    {% for msg in messages %}
+    <div id="overlay" class="alert alert-{{ msg.tags }}  fade show" role="alert">
+        <b id="msg-text">
+            {% if msg.tags == 'error' %}
+            <svg width="1.4rem" height="1.4rem" class="ml-3" viewBox="0 0 1792 1792"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill="#dd4646"
+                      d="M1277 1122q0-26-19-45l-181-181 181-181q19-19 19-45 0-27-19-46l-90-90q-19-19-46-19-26 0-45 19l-181 181-181-181q-19-19-45-19-27 0-46 19l-90 90q-19 19-19 46 0 26 19 45l181 181-181 181q-19 19-19 45 0 27 19 46l90 90q19 19 46 19 26 0 45-19l181-181 181 181q19 19 45 19 27 0 46-19l90-90q19-19 19-46zm387-226q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"/>
+            </svg>
+            {% endif %}
+            {% if msg.tags == 'success' %}
+            <svg width="1.4rem" height="1.4rem" class="ml-3" viewBox="0 0 1792 1792"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill="#70bf2b"
+                      d="M1412 734q0-28-18-46l-91-90q-19-19-45-19t-45 19l-408 407-226-226q-19-19-45-19t-45 19l-91 90q-18 18-18 46 0 27 18 45l362 362q19 19 45 19 27 0 46-19l543-543q18-18 18-45zm252 162q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"/>
+            </svg>
+            {% endif %}
+            {% if msg.tags == 'info' %}
+            <svg width="1.4rem" height="1.4rem" class="ml-3" viewBox="0 0 1792 1792"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill="#efb80b"
+                      d="M1024 1375v-190q0-14-9.5-23.5t-22.5-9.5h-192q-13 0-22.5 9.5t-9.5 23.5v190q0 14 9.5 23.5t22.5 9.5h192q13 0 22.5-9.5t9.5-23.5zm-2-374l18-459q0-12-10-19-13-11-24-11h-220q-11 0-24 11-10 7-10 21l17 457q0 10 10 16.5t24 6.5h185q14 0 23.5-6.5t10.5-16.5zm-14-934l768 1408q35 63-2 126-17 29-46.5 46t-63.5 17h-1536q-34 0-63.5-17t-46.5-46q-37-63-2-126l768-1408q17-31 47-49t65-18 65 18 47 49z"/>
+            </svg>
+
+            {% endif %}
+            {{ msg|upper }}
+        </b>
+
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% if submitbutton == 'Search' and request.GET.q != '' %}
+    {% if results_post or results_people %}
+    <div class="box-element">
+
+        <h3 class="mt-2">Results for <strong>"{{ request.GET.q }}"</strong></h3>
+
+        <div class="tab row mt-1">
+            <div class="col-lg-6 col-6">
+                <button class="tablinks" onclick="openCity(event, 'Post')" id="defaultOpen">
+                    <b>Post</b>
+                </button>
+            </div>
+            <div class="col-lg-6 col-6">
+                <button class="tablinks" onclick="openCity(event, 'People')">
+                    <b>People</b>
+                </button>
+            </div>
+            <!--                <button class="tablinks" onclick="openCity(event, 'Tokyo')">Tokyo</button>-->
+        </div>
+
+    </div>
+    <br>
+    <div id="Post" class="tabcontent">
+        {% if results_post|length > 0 %}
+        {% for post in results_post %}
+        {% if post %}
+        <div class="box-element">
+            <div class="content-section">
+                {% if post.text %}
+                <div class="media">
+                    <a href="{% url 'a_follower_post_view' post.user %}">
+                        <img class="rounded-circle article-img" src="{{ post.user.image.url }}" alt="">
+                    </a>
+                    <div class="media-body">
+                        <a href="{% url 'a_follower_post_view' post.user %}" class="text-dark">
+                            <strong class="account-heading dropbtn" style="width: 50px;height:50px">
+                                {% if post.user.display_name %}
+                                {{ post.user.display_name }}
+                                {% else %}
+                                {{ post.user }}
+                                {% endif %}
+                                {% if post.user.is_verified %}
+                                <img width="15px" height="15px" class="mb-1"
+                                     src="{% static 'images/verify.png' %}" alt="">
+                                {% endif %}
+                                &bull; {{ post.date_posted|date:"M d y" }}
+                            </strong>
+                            <p class="text-secondary mb-1">@{{ post.user }}</p>
+                        </a>
+                        <a href="{{post.get_repost_absolute_url}}">
+                            {% if post.text %}
+                            <h6>{{ post.text|safe|mentions|hashtags }}</h6>
+                            {% endif %}
+                        </a>
+                        {% if post.post %}
+                        <div style="border: 1px solid #adb5bd; border-radius: 13px; padding: 9px;">
+                            <a class="text-dark" href="{% url 'a_follower_post_view' post.post.author %}">
+                                <div class="media">
+                                    <img class="rounded-circle " style="width: 30px;height:30px"
+                                         src="{{ post.post.author.image.url }}" alt="">
+                                    <div class="media-body ml-1">
+                                        <strong class="account-heading dropbtn" style="font-size: 13px;">
+                                            {% if post.post.author.display_name %}
+                                            {{ post.post.author.display_name }}
+                                            {% else %}
+                                            {{ post.post.author }}
+                                            {% endif %}
+                                            {% if post.post.author.is_verified %}
+                                            <img width="15px" height="15px" class="mb-1"
+                                                 src="{% static 'images/verify.png' %}" alt="">
+                                            {% endif %}
+                                            &bull; {{ post.post.date_posted|date:"M d y" }}
+                                        </strong>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="text-decoration-none text-secondary mt-0"
+                               href="{{ post.post.get_absolute_url }}">
+                                <h6>{{ post.post.content|safe|truncatewords:'20'|mentions|hashtags }}</h6>
+                            </a>
+                        </div>
+                        {% elif post.repost %}
+                        <div style="border: 1px solid #adb5bd; border-radius: 13px; padding: 9px;">
+                            <a class="text-dark" href="{% url 'a_follower_post_view' post.repost.user %}">
+                                <div class="media">
+                                    <img class="rounded-circle" style="width: 30px;height:30px"
+                                         src="{{ post.repost.user.image.url }}" alt="">
+                                    <div class="media-body ml-1">
+                                        <strong class="account-heading dropbtn">
+                                            {% if post.repost.user.display_name %}
+                                            {{ post.repost.user.display_name }}
+                                            {% else %}
+                                            {{ post.repost.user }}
+                                            {% endif %}
+                                            {% if post.repost.user.is_verified %}
+                                            <img width="15px" height="15px"
+                                                 src="{% static 'images/verify.png' %}" alt="">
+                                            {% endif %}
+                                            &bull; {{ post.repost.date_posted|date:"M d y" }}
+                                        </strong>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="text-decoration-none text-secondary article-content mt-1"
+                               href="{{ post.repost.get_repost_absolute_url }}">
+                                <h6 class="mb-1">{{ post.repost.text|safe|truncatewords:'20'|mentions|hashtags }}</h6>
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="text-light"
+                             style="border: 1px solid #adb5bd; border-radius: 13px; padding: 9px; background: darkgrey; font-color: #fff">
+                            Author of this post deleted this post. It can't be seen.
+                        </div>
+                        {% endif %}
+                        <div class="mt-1">
+                        <div class="row">
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.like.count|intword }} </b>
+                                <img src="{% static 'images/like (2).png' %}" data-toggle="tooltip" data-placement="top"
+                                 title="Like"
+                                 class="mb-1" style="cursor:pointer;" width="23" height="23" alt="">
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.repostcomment_set.count|intword }} </b>
+                                <img data-toggle="tooltip" data-placement="top" title="Comment"
+                                 src="{% static 'images/comment (2).png' %}" class="mb-" width="23" height="23" alt="">
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <a class="text-dark" href="{{post.get_repost_url_}}">
+                                    <b data-target="#postReposModal" data-toggle="modal">
+                                        {{ post.blogrepost_set.count|intword }}
+                                    </b>
+                                    <img data-toggle="tooltip" data-placement="top" title="Repost"
+                                         src="{% static 'images/retweet (1).png' %}" class="mb-" width="23" height="23" alt="">
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                    </div>
+                </div>
+
+
+                {% elif not post.text %}
+                <div class="media">
+                    {% if post.author %}
+                    <a href="{% url 'a_follower_post_view' post.author %}">
+                        <img class="rounded-circle article-img" src="{{ post.author.image.url }}" alt="">
+                    </a>
+                    {% else %}
+                    <a href="{% url 'a_follower_post_view' post.post.author %}">
+                        <img class="rounded-circle article-img" src="{{ post.post.author.image.url }}" alt="">
+                    </a>
+                    {% endif %}
+                    <div class="media-body">
+                        <div class="dropdown">
+                            {% if post.author %}
+                            <a href="{% url 'a_follower_post_view' post.author %}" class="text-dark">
+                                <strong class="account-heading dropbtn">
+                                    {% if post.author.display_name %}
+                                    {{ post.author.display_name }}
+                                    {% else %}
+                                    {{ post.author }}
+                                    {% endif %}
+                                    {% if post.author.is_verified %}
+                                    <img width="15px" height="15px" class="mb-1"
+                                         src="{% static 'images/verify.png' %}" alt="">
+                                    {% endif %}
+                                    &bull; {{ post.date_posted|date:"M d y" }}
+                                </strong>
+                                <p class="text-secondary mb-1">@{{ post.author }}</p>
+                            </a>
+                            <a class="text-decoration-none text-dark mb-1" href="{{ post.get_absolute_url }}">
+                                <h6>{{ post.content|safe|mentions|hashtags }}</h6>
+                            </a>
+                            {% else %}
+                            <a href="{% url 'a_follower_post_view' post.post.author %}" class="text-dark">
+                                <strong class="account-heading dropbtn">
+                                    {% if post.post.author.display_name %}
+                                    {{ post.post.author.display_name }}
+                                    {% else %}
+                                    {{ post.post.author }}
+                                    {% endif %}
+                                    {% if post.post.author.is_verified %}
+                                    <img width="15px" height="15px" class="mb-1"
+                                         src="{% static 'images/verify.png' %}" alt="">
+                                    {% endif %}
+                                    &bull; {{ post.post.date_posted|date:"M d y" }}
+                                </strong>
+                                <p class="text-secondary mb-1">@{{ post.post.author }}</p>
+                            </a>
+                            <a class="text-decoration-none text-dark mb-1" href="{{ post.post.get_absolute_url }}">
+                                <h6>{{ post.post.content|safe|truncatewords:'70'|mentions|hashtags }}</h6>
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        {% if post.author %}
+                        <div id="like_result">
+                            <div class="row">
+                                <div class="col-lg-4 col-4">
+                                    <b>{{ post.like.count|intword }} </b>
+                                    <a data-href='{{post.get_api_like_url}}' class="like-btn" data-toggle="tooltip"
+                                       data-placement="top" title="Like">
+                                        <img src="{% static 'images/like (2).png' %}"
+                                             class="mb-2" style="cursor:pointer;" width="23" height="23" alt="">
+                                    </a>
+                                </div>
+                                <div class="col-lg-4 col-4">
+                                    <b>{{ post.blogcomment_set.count|intword }} </b>
+                                    <img onclick="openForm()" data-toggle="tooltip" data-placement="top" title="Comment"
+                                    src="{% static 'images/comment (2).png' %}" class="mb-" width="23" height="23" alt="">
+                                </div>
+                                <div class="col-lg-4 col-4">
+                                    <a class="text-dark" href="{{post.get_repost_url}}">
+                                        <b data-target="#postReposModal" data-toggle="modal">
+                                            {{ post.blogrepost_set.count|intword }}
+                                        </b>
+                                        <img data-toggle="tooltip" data-placement="top" title="Repost"
+                                             src="{% static 'images/retweet (1).png' %}" class="mb-1" width="23" height="23" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif post.repost %}
+                        <div class="row">
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.repost.like.count|intword }} </b>
+                                <a data-href='{{postv.get_api_like_url}}' class="like-btn" data-toggle="tooltip"
+                                   data-placement="top" title="Like">
+                                    <img src="{% static 'images/like (2).png' %}"
+                                         class="mb-2" style="cursor:pointer;" width="23" height="23" alt="">
+                                </a>
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.repost.repostcomment_set.count|intword }} </b>
+                                <img onclick="openForm()" data-toggle="tooltip" data-placement="top" title="Comment"
+                                src="{% static 'images/comment (2).png' %}" class="mb-" width="23" height="23" alt="">
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <a class="text-dark" href="{{post.get_repost_url}}">
+                                    <b data-target="#postReposModal" data-toggle="modal">
+                                        {{ post.repost.blogrepost_set.count|intword }}
+                                    </b>
+                                    <img data-toggle="tooltip" data-placement="top" title="Repost"
+                                         src="{% static 'images/retweet (1).png' %}" class="mb-1" width="23" height="23" alt="">
+                                </a>
+                            </div>
+                        </div>
+                        {% elif post.post %}
+                        <div class="row">
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.post.like.count|intword }} </b>
+                                <img data-toggle="tooltip" data-placement="top" title="Like" src="{% static 'images/like (2).png' %}"
+                                    class="mb-2" style="cursor:pointer;" width="23" height="23" alt="">
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.post.blogcomment_set.count|intword }} </b>
+                                <img src="{% static 'images/comment (2).png' %}"
+                                     data-toggle="tooltip" data-placement="top" title="Comment"
+                                     class="mb-" width="23" height="23" alt="">
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <a class="text-dark" href="{{post.post.get_repost_url}}">
+                                    <b data-target="#postReposModal" data-toggle="modal">
+                                        {{ post.post.blogrepost_set.count|intword }}
+                                    </b>
+                                    <img data-toggle="tooltip" data-placement="top" title="Repost"
+                                         src="{% static 'images/retweet (1).png' %}" class="mb-1" width="23" height="23" alt="">
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <br>
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <br>
+        <h3>No search results in posts. Checked people?</h3>
+        {% endif %}
+    </div>
+
+    <div id="People" class="tabcontent">
+        {% if results_people|length > 0 %}
+        {% for result in results_people %}
+        {% if result %}
+        {% if result.image.url %}
+        <div class="box-element">
+            <div class="media mt-2">
+                <a href="{% url 'a_follower_post_view' result %}">
+                    <img class="rounded-circle" style="width:50px;height:50px" src="{{ result.image.url }}"
+                         alt="">
+                </a>
+                <div class="media-body">
+                    <a href="{% url 'a_follower_post_view' result %}" class="text-decoration-none text-dark">
+                        <strong class="account-heading ml-2">
+                            {{result}}
+                            {% if result.is_verified %}
+                            <img width="15px" height="15px" class="mb-1"
+                                 src="{% static 'images/verify.png' %}" alt="">
+                            {% endif %}
+                        </strong>
+                    </a>
+
+                    {% if result in request.user.following.all %}
+                    <button style="border-radius:13px;" data-href="{% url 'follower-api' result %}"
+                            class="btn follow-btn btn-info btn-sm float-right" id="follow-btn">Following
+                    </button>
+                    {% elif result == request.user %}
+                    <a style="border-radius:13px;" href="{% url 'a_follower_post_view' result %}"
+                       class="btn btn-info btn-sm float-right">Edit Profile
+                    </a>
+                    {% elif request.user in result.following.all %}
+                    <a data-href="{% url 'follower-api' result %}"
+                       class="btn btn-outline-info follow-btn btn-md float-right">Follow back
+                    </a>
+                    {% else %}
+                    <a data-href="{% url 'follower-api' result %}" style="border-radius:13px;"
+                       class="btn btn-outline-info follow-btn btn-sm float-right"
+                       id="follow-buttonn">Follow
+                    </a>
+                    {% endif %}
+
+                    <a href="{% url 'a_follower_post_view' result %}" class="text-decoration-none text-dark">
+                        <p class="account-heading ml-2">{{ result.email }}</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <br>
+        {% else %}
+        {{ result }}
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <br>
+        <h3>No search results for this query</h3>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <h3>No search results "{{ request.GET.q }}"</h3>
+
+    {% endif %}
+    {% endif %}
+</div>
+<div class="col-lg-3">
+    <div class="box-element">
+        <form action="{% url 'search' %}" autocomplete="off" method="GET" value="{{request.GET.q}}">
+            Search <input type="text" name="q" value="{{request.GET.q}}" placeholder="Search posts"/>
+            <div class="autocomplete" style="width:300px; display:none;">
+                <input type="submit" name="submit" value="Search"/>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+/*the container must be positioned relative:*/
+.autocomplete {
+  position: relative;
+  display: inline-block;
+}
+
+input {
+  border: 1px solid transparent;
+  background-color: #f1f1f1;
+  padding: 10px;
+  font-size: 16px;
+}
+
+input[type=text] {
+  background-color: #f1f1f1;
+  width: 100%;
+}
+
+input[type=submit] {
+  background-color: DodgerBlue;
+  color: #fff;
+  cursor: pointer;
+}
+
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff;
+  border-bottom: 1px solid #d4d4d4;
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+  background-color: #e9e9e9;
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+  background-color: DodgerBlue !important;
+  color: #ffffff;
+}
+
+
+
+
+
+
+
+
+</style>
+<style>
+
+/* Style the tab */
+.tab {
+  overflow: auto;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  transition: .3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-colo: #007bff !important;
+  color: #17a2b8 !important;
+  border-bottom: 3px solid #17a2b8;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  border-top: none;
+}
+
+
+</style>
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+</script>
+<script>
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+
+</script>
+{% endblock %}

@@ -1,0 +1,176 @@
+<form id="signup-form" action="{% url 'register' %}" method="POST">
+                {% csrf_token %}
+<!--                <div class="form-group">-->
+<!--                    <input name="first_name" type="text" class="form-control" id="first_name"-->
+<!--                           aria-describedby="textHelp" placeholder="Enter First Name" required>-->
+<!--                </div>-->
+                <div class="form-group">
+                    <input name="username" type="text" class="form-control" id="username"
+                           aria-describedby="emailHelp" placeholder="Enter Username" required>
+                    <small id="usernameHelpBlock" class="form-text hidden text-left text-muted">
+                        Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+                    </small>
+                    <b id="username_result" class="mb-2" style="float: center"></b>
+                </div>
+                <div class="form-group">
+                    <input name="email" type="email" class="form-control" id="email"
+                           aria-describedby="emailHelp" placeholder="Enter Email" required>
+                    <b id="email_result" class="mb-2" style="float: center"></b>
+                </div>
+                <div class="form-group">
+                    <input name="password1" type="password" id="myInput" class="form-control"
+                           placeholder="Enter Password" required>
+                </div>
+                <script>
+                    $("#username").change(function () {
+                      var username = $(this).val();
+                      var email = $(this).attr('#email');
+
+                      $.ajax({
+                        url: '/ajax/validate_username/',
+                        data: {
+                          'username': username,
+                          'email': email,
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                        console.log(data)
+                          if (data.is_taken) {
+                            $("#username_result").text("Username has been used");
+                            $("#username_result").addClass("text-danger");
+                          } else {
+                            $("#username_result").text("");
+                            $("#username_result").addClass("text-success");
+                          }
+                          if (data.is_taken_email) {
+                            $("#email_result").text("Email has been used");
+                            $("#email_result").addClass("text-danger");
+                          }
+                        }
+                      });
+
+                    });
+
+                    $("#email").change(function () {
+                      var email = $(this).val();
+
+                      $.ajax({
+                        url: '/ajax/validate_username/',
+                        data: {
+                          'email': email,
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                        console.log(data)
+                          if (data.is_taken_email) {
+                            $("#email_result").text("Email has been used");
+                            $("#email_result").addClass("text-danger");
+                          }
+                          else {
+                            $("#email_result").text("");
+                            $("#email_result").addClass("text-success");
+                          }
+                        }
+                      });
+
+                    });
+
+                </script>
+                <style>
+                    .switch {
+                      position: relative;
+                      display: inline-block;
+                      width: 40px;
+                      height: 14px;
+                    }
+
+                    .switch input {
+                      opacity: 0;
+                      width: 0;
+                      height: 0;
+                    }
+
+                    .slider {
+                      position: absolute;
+                      cursor: pointer;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      bottom: 0;
+                      background-color: #ccc;
+                      -webkit-transition: .4s;
+                      transition: .4s;
+                    }
+
+                    .slider:before {
+                      position: absolute;
+                      content: "";
+                      height: 13px;
+                      width: 13px;
+                      left: 2px;
+                      right: 14px;
+                      align-items: center;
+
+                      background-color: white;
+                      -webkit-transition: .4s;
+                      transition: .4s;
+                    }
+                    .slider:after {
+                        right: 4px;
+                    }
+                    input:checked + .slider {
+                      background-color: #2196F3;
+
+                    }
+
+                    input:focus + .slider {
+                      box-shadow: 0 0 1px #2196F3;
+
+                    }
+
+                    input:checked + .slider:before {
+                      -webkit-transform: translateX(24px);
+                      -ms-transform: translateX(24px);
+                      transform: translateX(24px);
+
+                    }
+
+                    /* Rounded sliders */
+                    .slider.round {
+                      border-radius: 14px;
+                    }
+
+                    .slider.round:before {
+                      border-radius: 50%;
+                    }
+                </style>
+                <div class="form-group">
+                    <input name="password2" type="password" id="myInputConfirm" class="form-control"
+                           placeholder="Confirm Password" required>
+                    <b id="password_result" class="mb-2" style="float: center"></b>
+                </div>
+                <small class="text-muted float-left">
+                    Show password
+                </small>
+                <br>
+                <div align="left">
+                    <label class="switch">
+                        <input type="checkbox" class="float-left" id="togglePassword">
+                        <span class="slider round float-left"></span>
+                    </label>
+                </div>
+                <br>
+                <button id="submit" type="submit" class="btn btn-block btn-info">
+                    <div class="spinner-border text-light hidden" id="spinner" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <span id="button-text">SIGNUP</span>
+                </button>
+                <style>
+                        .spinner-border {
+                            width: 1.5rem;
+                            height: 1.5rem;
+                        }
+
+                </style>
+            </form>

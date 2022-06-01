@@ -1,0 +1,68 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+{% load static %}
+{% load subtract %}
+{% load mentions %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+
+<div class="col-lg-6">
+    <div class="box-element">
+        <div class="media">
+            <img class="rounded-circle article-img" style="width:70px; height: 70px;"
+                 src="{{ user.image.url }}" alt="">
+
+            <div class="media-body mt-2">
+                <div class="box-element">
+                    <div class="media">
+                        <img class="rounded-circle article-img" style="width:50px; height: 50px;"
+                             src="{{ obj.author.image.url }}" alt="">
+                        <div class="media-body mt-2">
+                            <strong class="account-heading dropbtn">
+                                {{ obj.author }} &bull; {{ obj.date_posted|naturaltime }}
+                            </strong>
+                            <br>
+                        </div>
+                    </div>
+                    <a class="text-decoration-none text-dark" href="{{ obj.get_absolute_url }}">
+                        <p>{{ obj.content|safe|mentions|hashtags }}</p>
+                    </a>
+                </div>
+                <br>
+                <form id="Repost-form" class="display-inline Repost-form my-2 mr-sm-2 my-lg-0" action="{% url 'repost_add_view' obj.pk %}"
+                      method="POST">
+                    {% csrf_token %}
+                    {{form|crispy}}
+                    <br>
+                    <button style="border-radius: 24px" id="submit" type="submit" class="btn create-submit_button btn-block btn-info">
+                       REPOST
+                    </button>
+
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-3 col-md-3">
+    <div class="box-element">
+        <form action="{% url 'search' %}" autocomplete="off" method="GET" value="{{request.GET.q}}">
+            <input type="text" name="q" value="{{request.GET.q}}" class="form-control"
+                   placeholder="Search posts"/>
+            <div class="autocomplete" style="width:300px; display:none;">
+                <input type="submit" name="submit" value="Search"/>
+            </div>
+        </form>
+    </div>
+    <br>
+</div>
+<style>
+    label {display: none}
+
+</style>
+
+{% endblock %}
