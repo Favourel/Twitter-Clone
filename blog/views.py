@@ -24,6 +24,7 @@ from django.db.models.fields.files import ImageFieldFile
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import date, datetime
 from blog.templatetags.mentions import mentions
+from collections import Collection, Counter
 
 
 class ExtendedEncoder(DjangoJSONEncoder):
@@ -57,7 +58,12 @@ def error_404(request, exception):
 def error_500(request):
     data = {}
     return render(request, 'blog/error404.html', data)
-# class Home(PusherUpdateMixin, LoginRequiredMixin, View):
+
+
+def Convert(a):
+    it = iter(a)
+    res_dct = dict(zip(it, it))
+    return res_dct
 
 
 @login_required
@@ -94,12 +100,35 @@ def blog_list_view(request):
     notification_count = Notification.objects.filter(user=request.user, is_seen=False).count()
     post_notification_count = PostNotification.objects.filter(user=request.user, is_seen=False).count()
 
-    # c = Product.objects.last()  # Get the last content
+    words = {}
+    content = Post.objects.all().values_list("content", "content")
+    sublist = []
+    for i in content:
+        for c in i:
+            sublist.append(c)
+    string = " ".join([str(item) for item in sublist])
+    print(string.split())
+    central_list = []
 
-    # q_set = []
-    # for let in Post.objects.all():
-    #     q_set = let.get_most_used_words(10)
-    # print(q_set)  # Get the top 10 most used words
+    for word in string.split():
+        if len(word) >= 5:
+            central_list.append(word)
+
+            if word in words:
+                words[word] += 1
+            else:
+                words[word] = 1
+    top_10_words = sorted(words.items(), key=lambda x: -x[1])[:10]
+
+    counter = Counter(central_list)
+    top_words = counter.most_common(10)
+    print(top_words)
+
+    out = [item for t in top_words for item in t]
+
+    get_keys = Convert(out)
+    top_trends = list(get_keys.keys())
+    top_trends_count = list(get_keys.values())
 
     context = {
         'blog_post': combined_posts,
@@ -109,13 +138,13 @@ def blog_list_view(request):
         'post_notification_count': post_notification_count,
         "story": Story.objects.filter(user__in=user_following).distinct(),
         "form": CreateForm(),
-        "recent_search": RecentSearch.objects.filter(user=request.user)
+        "recent_search": RecentSearch.objects.filter(user=request.user),
+        "top_trends": top_trends,
+        "top_trends_count": top_trends_count
     }
-    # pusher_client.trigger('my-channel', 'showMessage', {'message': 'hello world'})
     return render(request, 'blog/blog_list.html', context)
 
 
-# function that triggers the pusher request
 def push_feed(request):
     if request.method == 'POST':
         content = request.POST.get('content')
@@ -133,7 +162,6 @@ def push_feed(request):
                 "author": dict_obj.get("display_name"),
                 "email": dict_obj.get("username"),
                 "author_image": ExtendedEncoder.default(dict_obj.get("image"), dict_obj.get("image")),
-                # "author_image": dict_obj.get("image"),
                 "date": DateExtendedEncoder.default(dict_object.get("date_posted"), dict_object.get("date_posted")),
                 "like": len(dict_object.get("like")),
                 "comment": 0,
@@ -223,6 +251,7 @@ def blog_comment(request, pk):
             form.save()
         dict_obj = model_to_dict(form.user)
         dict_obj_ = model_to_dict(form.post.author)
+        dict_object = model_to_dict(form)
         notify = Notification(blog=obj, sender=request.user, user=obj.author,
                               notification_type=2, text_preview=form.comment)
         notify.save()
@@ -235,18 +264,19 @@ def blog_comment(request, pk):
         else:
             UserStat.objects.filter(user=obj.author).update(account_engaged=F('account_engaged') + 1)
 
-    data = {
-        "comment": request.POST.get('comment', None),
-        "author": dict_obj.get("display_name"),
-        "author_username": dict_obj.get("username"),
-        "author_image": json.dumps(dict_obj["image"], cls=ExtendedEncoder),
-        "is_verified": dict_obj.get("is_verified"),
-        "replying": dict_obj_["username"],
-        "message": "Your comment has been sent"
-    }
-    print(json.dumps(dict_obj["image"], cls=ExtendedEncoder))
-    print(dict_obj.get("is_verified"))
-    return JsonResponse(data)
+        data = {
+            "comment": request.POST.get('comment', None),
+            "author": dict_obj.get("display_name"),
+            "author_username": dict_obj.get("username"),
+            "author_image": ExtendedEncoder.default(dict_obj.get("image"), dict_obj.get("image")),
+            "is_verified": dict_obj.get("is_verified"),
+            "replying": dict_obj_["username"],
+            "message": "Your comment has been sent",
+            "date": DateExtendedEncoder.default(dict_object.get("date_posted"), dict_object.get("date_posted")),
+        }
+        print(json.dumps(dict_obj["image"], cls=ExtendedEncoder))
+        print(dict_obj.get("is_verified"))
+        return JsonResponse(data)
 
 
 # def delete_comment(request, pk):
@@ -652,7 +682,7 @@ def create_post(request):
             data = {
                 "message": "Your post has been made",
                 "author": dict_obj.get("display_name"),
-                "email": dict_obj.get("username"),
+                "username": dict_obj.get("username"),
                 "author_image": ExtendedEncoder.default(dict_obj.get("image"), dict_obj.get("image")),
                 "date": DateExtendedEncoder.default(dict_object.get("date_posted"), dict_object.get("date_posted")),
                 "like": len(dict_object.get("like")),
@@ -671,7 +701,7 @@ def create_post(request):
         data = {
             "message": "Your post has been made",
             "author": dict_obj.get("display_name"),
-            "email": dict_obj.get("username"),
+            "username": dict_obj.get("username"),
             "author_image": ExtendedEncoder.default(dict_obj.get("image"), dict_obj.get("image")),
             "date": DateExtendedEncoder.default(dict_object.get("date_posted"), dict_object.get("date_posted")),
             "like": len(dict_object.get("like")),

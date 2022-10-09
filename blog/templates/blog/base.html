@@ -552,18 +552,22 @@ $(document).ready(function(){
         `<div class="media">
             <a href="/` + data.author_username + `/post" class="text-decoration-none text-dark">
                 <img class="rounded-circle article-img mr-2" style="width: 50px;height:50px"
-                     src="` + data.author_image + `" alt="">
+                     src="/images/` + data.author_image + `" alt="">
             </a>
             <div class="media-body">
                 <a href="/` + data.author_username + `/post" class="text-decoration-none text-dark">
+                    {% if request.user.display_name %}
                     <strong class="account-heading">` + data.author + `</strong></a>
+                    {% else %}
+                    <strong class="account-heading">` + data.author_username + `</strong></a>
+                    {% endif %}
                     {% if data.is_verified == "True" %}
 
                         <img width="15px" height="15px" class="mb-1"
                            src="{% static 'images/verify.png' %}" alt="">
 
                     {% endif %}
-                Replying to <b>@` + data.replying + `</b>
+                Replying to <b>@` + data.replying + `</b> &bull; <p> ` + data.date + `</p>
                 <p>` + data.comment + `</p>
             </div>
         </div>
@@ -686,14 +690,18 @@ function sendMessage() {
             var new_message = `<div class="col-lg-12">
             <div class="box-element">
                 <div class="media">
-                    <a class="text-dark d-flex" href="/` + data.email + `/post">
-                        <img class="rounded-circle article-img" src="` + data.author_image + `" alt="">
+                    <a class="text-dark d-flex" href="/` + data.username + `/post">
+                        <img class="rounded-circle article-img" src="/images/` + data.author_image + `" alt="">
                     </a>
                     <div class="media-body">
-                        <a class="text-dark d-flex" href="/` + data.email + `/post">
+                        <a class="text-dark d-flex" href="/` + data.username + `/post">
+                        {% if request.user.display_name %}
                             <strong class="account-heading">` + data.author + ` </strong> &bull; <b> ` + data.date + `</b>
+                        {% else %}
+                            <strong class="account-heading">` + data.username + ` </strong> &bull; <b> ` + data.date + `</b>
+                        {% endif %}
                         </a>
-                        <p class="text-secondary mb-1">@` + data.email + `</p>
+                        <p class="text-secondary mb-1">@` + data.username + `</p>
                         <a class="text-dark d-flex" href="/post/` + data.pk + `">
                             <h6>` + data.content + `</h6>
                         </a>

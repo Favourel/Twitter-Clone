@@ -471,6 +471,17 @@
         <br>
         <div class="box-element">
             <h4 class="mb-3"><strong>Trends</strong></h4>
+            <ul class="customer-nav list-group border-0">
+                {% for i in top_trends %}
+                <a href="/search/?q={{i}}&submit=Search"
+                   class="d-flex list-group-item">
+
+                    <h6>{{ forloop.counter }} - <b>{{ i|capfirst }}</b></h6>
+<!--                    <p>{{ top_trends_count }}</p>-->
+                </a>
+                {% endfor %}
+            </ul>
+            <br>
         </div>
         <br>
         <div class="box-element">
