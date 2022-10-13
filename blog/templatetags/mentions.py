@@ -21,6 +21,7 @@ def hashtags(value):
 
 
 @register.filter
+@stringfilter
 def highlight_search(text, search):
     highlighted = text.replace(search, '<b><em>{}</em></b>'.format(search))
     return mark_safe(highlighted)
