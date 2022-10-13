@@ -1,8 +1,8 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 import re
-from users.models import *
-from django.core.exceptions import ObjectDoesNotExist
+from django.utils.safestring import mark_safe
+
 register = template.Library()
 
 
@@ -20,23 +20,9 @@ def hashtags(value):
     return value
 
 
-# @register.filter(name='mention', is_safe=True)
-# @stringfilter
-# def mention(value):
-#     res = ""
-#     my_list = value.split()
-#     for i in my_list:
-#         if i[0] == '@':
-#             try:
-#                 stng = i[:1]
-#                 user = User.objects.get(username=stng)
-#                 if user:
-#                     profile_link = user
-#                     i = f"<a href='{profile_link}/post/'>{i}</a>"
-#
-#             except ObjectDoesNotExist:
-#                 print("Could not get the data")
-#
-#         res = res + i + ' '
-#
-#     return res
+@register.filter
+def highlight_search(text, search):
+    highlighted = text.replace(search, '<b><em>{}</em></b>'.format(search))
+    return mark_safe(highlighted)
+
+

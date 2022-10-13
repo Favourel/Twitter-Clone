@@ -29,45 +29,14 @@
     <!--    <script href="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">-->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
-
-    <!--    </script>-->
-
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+    <script class="u-script" type="text/javascript" src="{% static 'js/register.js' %}" defer=""></script>
 
     <title>
         ELODIMUOR | Register
     </title>
 </head>
 
-<style>
-    body{
-	background-color: #f6f9fc !important;
-}
-
-h1,h2,h3,h4,h5,h6{
-	color:hsl(0, 0%, 30%);
-}
-@media (min-width: 48em) {
-
-.box-element{
-	box-shadow:hsl(0, 0%, 80%) 0 0 16px;
-	background-color: #fff;
-	border-radius: 4px;
-	padding: 45px;
-}
-}
-@media only screen and (max-width: 600px) {
-.box-element{
-	border-radius: 4px;
-	padding: 3px;
-    }
-}
-
-</style>
-
-{% load crispy_forms_tags %}
-<br>
-<br>
-<body>
 <style>
 body {
     background: url('{% static 'images/corner-2.png' %}') no-repeat;
@@ -79,47 +48,18 @@ body {
     background-position: right
     opacity: 0.3;
     border-top-right-radius: .375rem;
-
-
-    }
-
-</style>
-
-
-<style>
-    .alert-success {
-        display: block;
-        font-weight: 400;
-        font-size: 13px;
-        padding: 10px 10px 10px 65px;
-        margin: 0 0 10px 0;
-        background: #dfd url(../images/icon-yes.svg) 40px 12px no-repeat;
-        background-size: 16px auto;
-        color: #333;
-    }
-    .alert-warning {
-        background: #ffc url(../images/icon-alert.svg) 40px 14px no-repeat;
-        background-size: 14px auto;
-    }
-
-    .alert-error {
-        background: #ffefef url(../images/icon-no.svg) 40px 12px no-repeat;
-        background-size: 16px auto;
     }
 </style>
+
+{% load crispy_forms_tags %}
+<br>
+<br>
+<body>
 
 <br>
 <div class="container" align="center">
 
 </div>
-<style>
-    .brand {
-      display: -ms-flexbox;
-      display: flex;
-      -ms-flex-align: center;
-      align-items: center;
-    }
-</style>
 
 <div align="center" class="container">
     <div class="col-lg-6">
@@ -129,7 +69,7 @@ body {
             }
         </style>
         <div style="margin-bottom: 20px;" class="box-element rounded overflow-hidden">
-            <h4 class="center"><b>Join Elodimuor today</b></h4>
+            <h4 class="center"><b>Join FAVOUR today</b></h4>
             <p>Enter your email and password to register</p>
             <br>
             {% if messages %}
@@ -181,140 +121,9 @@ body {
                            placeholder="Enter Password" required>
                 </div>
                 <script>
-                    $("#username").change(function () {
-                      var username = $(this).val();
-                      var email = $(this).attr('#email');
-
-                      $.ajax({
-                        url: '/ajax/validate_username/',
-                        data: {
-                          'username': username,
-                          'email': email,
-                        },
-                        dataType: 'json',
-                        success: function (data) {
-                        console.log(data)
-                          if (data.is_taken) {
-                            $("#username_result").text("Username has been used");
-                            $("#username_result").addClass("text-danger");
-                          } else {
-                            $("#username_result").text("");
-                            $("#username_result").addClass("text-success");
-                          }
-                          if (data.is_taken_email) {
-                            $("#email_result").text("Email has been used");
-                            $("#email_result").addClass("text-danger");
-                          }
-                        }
-                      });
-
-                    });
-
-
-                    $("#email").change(function () {
-                      var email = $(this).val();
-
-                      $.ajax({
-                        url: '/ajax/validate_username/',
-                        data: {
-                          'email': email,
-                        },
-                        dataType: 'json',
-                        success: function (data) {
-                        console.log(data)
-                          if (data.is_taken_email) {
-                            $("#email_result").text("Email has been used");
-                            $("#email_result").addClass("text-danger");
-                          }
-                          else {
-                            $("#email_result").text("");
-                            $("#email_result").addClass("text-success");
-                          }
-                        }
-                      });
-
-                    });
-
-
-
-
-
-
 
                 </script>
                 <style>
-                    .switch {
-                      position: relative;
-                      display: inline-block;
-                      width: 40px;
-                      height: 14px;
-                    }
-
-                    .switch input {
-                      opacity: 0;
-                      width: 0;
-                      height: 0;
-                    }
-
-                    .slider {
-                      position: absolute;
-                      cursor: pointer;
-                      top: 0;
-                      left: 0;
-                      right: 0;
-                      bottom: 0;
-                      background-color: #ccc;
-                      -webkit-transition: .4s;
-                      transition: .4s;
-                    }
-
-                    .slider:before {
-                      position: absolute;
-                      content: "";
-                      height: 13px;
-                      width: 13px;
-                      left: 2px;
-                      right: 14px;
-                      align-items: center;
-
-                      background-color: white;
-                      -webkit-transition: .4s;
-                      transition: .4s;
-                    }
-                    .slider:after {
-                        right: 4px;
-                    }
-                    input:checked + .slider {
-                      background-color: #2196F3;
-
-                    }
-
-                    input:focus + .slider {
-                      box-shadow: 0 0 1px #2196F3;
-
-                    }
-
-                    input:checked + .slider:before {
-                      -webkit-transform: translateX(24px);
-                      -ms-transform: translateX(24px);
-                      transform: translateX(24px);
-
-                    }
-
-                    /* Rounded sliders */
-                    .slider.round {
-                      border-radius: 14px;
-                    }
-
-                    .slider.round:before {
-                      border-radius: 50%;
-                    }
-
-
-
-
-
-
 
                 </style>
                 <div class="form-group">
@@ -340,10 +149,10 @@ body {
                     <span id="button-text">SIGNUP</span>
                 </button>
                 <style>
-                        .spinner-border {
-                            width: 1.5rem;
-                            height: 1.5rem;
-                        }
+                    .spinner-border {
+                        width: 1.5rem;
+                        height: 1.5rem;
+                    }
 
                 </style>
             </form>
@@ -364,80 +173,7 @@ body {
         display: none;
     }
 </style>
-<script>
-const togglePassword = document.querySelector('#togglePassword');
-const password = document.querySelector('#myInput');
-const password_confirm = document.querySelector('#myInputConfirm');
 
-togglePassword.addEventListener('click', function (e) {
-    // toggle the type attribute
-    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-    const password_confirm_type = password_confirm.getAttribute('type') === 'password' ? 'text' : 'password';
-    password.setAttribute('type', type);
-    password_confirm.setAttribute('type', password_confirm_type);
-    // toggle the eye slash icon
-});
-
-
-    let paymentForm = document.getElementById('signup-form');
-	if (paymentForm) {
-		paymentForm.addEventListener('submit', function () {
-		    console.log("signup button clicked");
-			changeLoadingState(true);
-
-	    }
-	  );
-	}
-
-    var changeLoadingState = function(isLoading) {
-        if (isLoading) {
-            document.getElementById("submit").disabled = true;
-            document.querySelector("#spinner").classList.remove("hidden");
-            document.querySelector("#button-text").classList.add("hidden");
-        } else {
-            document.getElementById("submit").disabled = false;
-            document.querySelector("#spinner").classList.add("hidden");
-            document.querySelector("#button-text").classList.remove("hidden");
-        }
-    };
-
-</script>
-<script>
-    $("#username").change(function () {
-      var username = $(this).val();
-      var email = $(this).attr('#email');
-
-      $.ajax({
-        url: '/ajax/validate_username/',
-        data: {
-          'username': username,
-          'email': email,
-        },
-        dataType: 'json',
-        success: function (data) {
-        console.log(data)
-          if (data.is_taken) {
-            $("#username_result").text("Username has been used");
-            $("#username_result").addClass("text-danger");
-          } else {
-            $("#username_result").text("");
-            $("#username_result").addClass("text-success");
-          }
-          if (data.is_taken_email) {
-            $("#email_result").text("Email has been used");
-            $("#email_result").addClass("text-danger");
-          }
-          if (data.not_equal) {
-            $("#password_result").text("Password doesn't match");
-            $("#password_result").addClass("text-danger");
-          }
-        }
-      });
-
-    });
-
-
-</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"/>
 </body>
 

@@ -8,7 +8,6 @@ from .forms import *
 from blog.models import *
 from users.models import User
 from itertools import chain
-import re
 from django.db.models import F
 
 
@@ -18,7 +17,6 @@ def register(request):
         email = request.POST['email']
         password1 = request.POST['password1']
         password2 = request.POST['password2']
-        # value = re.sub(r'^[\w.@+-]+\Z(\w+)', r'^[\w.@+-]+\Z\1', username)
         if password1 == password2:
             if User.objects.filter(username=username).exists():
                 messages.error(request, 'Username already exists')
@@ -32,9 +30,6 @@ def register(request):
             elif password1 and password2 == username:
                 messages.error(request, 'Password can not similar to username')
                 return redirect('register')
-            # elif value in username:
-            #     messages.error(request, 'Enter a valid username. This value may contain only English letters,')
-            #     return redirect('register')
             else:
                 user = User.objects.create_user(username=username, email=email, password=password1)
 
@@ -120,10 +115,7 @@ def notification_view(request):
     followed_by_count = followed_by_.count()
     notification = Notification.objects.filter(user=request.user, is_seen=False)
     post_notification = Notification.objects.filter(user=request.user, is_seen=False)
-    combined_notification = sorted(
-        chain(notification, post_notification),
-        key=lambda posts: posts.id
-    )
+
     posts_mentions = BlogRepost.objects.filter(text__icontains=f"@{request.user}").order_by("-date_posted")
 
     followers_mentions = Post.objects.filter(content__icontains=f"@{request.user}").order_by('-date_posted')
@@ -138,8 +130,8 @@ def notification_view(request):
         post_notification_list = PostNotification.objects.filter(user=request.user).order_by("-date")
 
         queryset = []
-        for let in notification_list:
-            queryset.append(let.blog)
+        for single_notification in notification_list:
+            queryset.append(single_notification.blog)
         context = {
             "notification_list": notification_list,
             "notification_count": notification_count,
@@ -158,8 +150,8 @@ def notification_view(request):
         post_notification_list = PostNotification.objects.filter(user=request.user).order_by("-date")
 
         queryset = []
-        for let in notification_list:
-            queryset.append(let.blog)
+        for single_notification in notification_list:
+            queryset.append(single_notification.blog)
         context = {
             "notification_list": notification_list,
             "notification_count": notification_count,
@@ -180,16 +172,16 @@ def notification_view(request):
         PostNotification.objects.filter(user=request.user).update(is_seen=True)
 
         queryset = []
-        for let in Notification.objects.filter(user=request.user):
-            queryset.append(let.is_seen == True)
-            let.is_seen = True
-            let.save()
+        for user_notification in Notification.objects.filter(user=request.user):
+            queryset.append(user_notification.is_seen == True)
+            user_notification.is_seen = True
+            user_notification.save()
 
         queryset = []
-        for let in PostNotification.objects.filter(user=request.user):
-            queryset.append(let.is_seen == True)
-            let.is_seen = True
-            let.save()
+        for user_post_notification in PostNotification.objects.filter(user=request.user):
+            queryset.append(user_post_notification.is_seen == True)
+            user_post_notification.is_seen = True
+            user_post_notification.save()
 
         context = {
             "notification_list": notification_list,

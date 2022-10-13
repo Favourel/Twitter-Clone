@@ -31,17 +31,6 @@ class Post(models.Model):
     def get_api_like_url(self):
         return reverse('like-api', kwargs={'pk': self.pk})
 
-    # def get_most_used_words(self, count):
-    #     words = {}
-    #     content = self.content.split()
-    #     for word in content:
-    #         if word in words:
-    #             words[word] += 1
-    #         else:
-    #             words[word] = 1
-    #     top_10_words = sorted(words.items(), key=lambda x: -x[1])[:count]
-    #     return top_10_words
-
 
 class BlogComment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

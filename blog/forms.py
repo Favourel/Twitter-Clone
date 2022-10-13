@@ -3,7 +3,6 @@ from django import forms
 
 
 class UpdateForm(forms.ModelForm):
-    # comment = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control"}))
 
     class Meta:
         model = Post
@@ -27,7 +26,6 @@ class CreateForm(forms.ModelForm):
 
 
 class RepostForm(forms.ModelForm):
-    # text = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Quote Repost?"}))
 
     class Meta:
         model = BlogRepost
@@ -35,7 +33,6 @@ class RepostForm(forms.ModelForm):
 
 
 class RepostCommentBox(forms.ModelForm):
-    # comment = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control"}))
 
     class Meta:
         model = RepostComment
@@ -43,7 +40,6 @@ class RepostCommentBox(forms.ModelForm):
 
 
 class CommentBox(forms.ModelForm):
-    # comment = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control"}))
 
     class Meta:
         model = BlogComment

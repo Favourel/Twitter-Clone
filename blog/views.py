@@ -73,17 +73,16 @@ def blog_list_view(request):
     user_following = request.user.following.all()
     user_block_list = request.user.block_list.all()
     user_mute_list = request.user.mute_list.all()
-    let_test = []
-    let_test_ = []
-    for let in user_block_list:
-        let_test = let.post_set.all()
-        let_test_ = let.blogrepost_set.all()
-        print(let_test)
+    single_user_posts = []
+    single_user_reposts = []
+    for single_user in user_block_list:
+        single_user_posts = single_user.post_set.all()
+        single_user_reposts = single_user.blogrepost_set.all()
     posts_reposted = BlogRepost.objects.filter(
         user__in=user_following).order_by("-date_posted"
-                         ).exclude(user__in=user_mute_list).exclude(user__in=user_block_list).exclude(post__in=let_test).exclude(repost__in=let_test_)[:5] | \
+                         ).exclude(user__in=user_mute_list).exclude(user__in=user_block_list).exclude(post__in=single_user_posts).exclude(repost__in=single_user_reposts)[:5] | \
          BlogRepost.objects.filter(user=request.user
-                                   ).order_by("-date_posted").exclude(user__in=user_mute_list).exclude(user__in=user_block_list).exclude(post__in=let_test).exclude(repost__in=let_test_)
+                                   ).order_by("-date_posted").exclude(user__in=user_mute_list).exclude(user__in=user_block_list).exclude(post__in=single_user_posts).exclude(repost__in=single_user_reposts)
 
     followers_post = Post.objects.filter(author__in=request.user.following.all()
                                          ).order_by('-date_posted').exclude(author__in=user_mute_list).exclude(author__in=user_block_list) | \
@@ -225,9 +224,8 @@ def repost_detail_view(request, pk):
             obj.delete()
             notify = Notification.objects.filter(repost_blog=obj, sender=request.user, notification_type=4)
             notify.delete()
-            # return redirect("blog_home")
-            next = request.POST.get('next', '/')
-            return HttpResponseRedirect(next)
+            return redirect("blog_home")
+
     context = {
         'object': obj,
         'comments': comments,
@@ -299,11 +297,8 @@ def repost_comment(request, pk):
                 form.user = request.user
                 form.post = obj
                 form.save()
-                instance = form
                 dict_obj = model_to_dict(form.user)
                 dict_obj_ = model_to_dict(form.post.user)
-                # serialize in new friend object in json
-                ser_instance = serializers.serialize('json', [instance, ])
 
             notify = Notification(repost_blog=obj, sender=request.user,
                                   user=obj.user, notification_type=6, text_preview=form.comment)
@@ -318,7 +313,6 @@ def repost_comment(request, pk):
                 UserStat.objects.filter(user=obj.user).update(account_engaged=F('account_engaged') + 1)
 
             data = {
-                # "message": ser_instance,
                 "comment": request.POST.get('comment', None),
                 "author": dict_obj.get("display_name"),
                 "author_username": dict_obj.get("username"),
@@ -354,7 +348,7 @@ def search(request):
             results_people = models.User.objects.filter(lookups_people).distinct()
             results_post = Post.objects.filter(lookups_post).distinct().order_by("-date_posted").exclude(author__in=request.user.block_list.all())
             results_lookups_repost = BlogRepost.objects.filter(lookups_repost).order_by("-date_posted").exclude(user__in=request.user.block_list.all())
-            results_lookups_comment = BlogComment.objects.filter(lookups_comment).order_by("-date_posted")
+            # results_lookups_comment = BlogComment.objects.filter(lookups_comment).order_by("-date_posted")
             combined = sorted(
                 chain(results_post, results_lookups_repost),
                 key=lambda posts: posts.date_posted, reverse=True
@@ -399,7 +393,6 @@ class PostLikeApi(APIView):
                 liked = False
                 obj.like.remove(user)
                 message_user = f'"{user}" unliked {obj}'
-                # if Notification.objects.filter(blog=obj, sender=user, user=obj.author, notification_type=1).exists():
                 notify = Notification.objects.get(blog=obj, sender=user, notification_type=1)
                 notify.delete()
                 UserStat.objects.filter(user=obj.author).update(account_engaged=F('account_engaged') - 1)
@@ -838,7 +831,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView, ABC):
 
 
 @login_required
-def a_follower_post_view(request, username):
+def profile_view(request, username):
     try:
         if User.objects.get(username=username).is_active:
             user_profile = get_object_or_404(User, username=username)
