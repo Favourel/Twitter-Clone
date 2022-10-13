@@ -90,7 +90,7 @@
                         </a>
                         <a href="{{post.get_repost_absolute_url}}">
                             {% if post.text %}
-                            <h6>{{ post.text|safe|mentions|hashtags }}</h6>
+                            <h6>{{ post.text|safe|mentions|hashtags|highlight_search:query }}</h6>
                             {% endif %}
                         </a>
                         {% if post.post %}
@@ -401,134 +401,10 @@
         </form>
     </div>
 </div>
-
-<style>
-* {
-  box-sizing: border-box;
-}
-
-/*the container must be positioned relative:*/
-.autocomplete {
-  position: relative;
-  display: inline-block;
-}
-
-input {
-  border: 1px solid transparent;
-  background-color: #f1f1f1;
-  padding: 10px;
-  font-size: 16px;
-}
-
-input[type=text] {
-  background-color: #f1f1f1;
-  width: 100%;
-}
-
-input[type=submit] {
-  background-color: DodgerBlue;
-  color: #fff;
-  cursor: pointer;
-}
-
-.autocomplete-items {
-  position: absolute;
-  border: 1px solid #d4d4d4;
-  border-bottom: none;
-  border-top: none;
-  z-index: 99;
-  /*position the autocomplete items to be the same width as the container:*/
-  top: 100%;
-  left: 0;
-  right: 0;
-}
-
-.autocomplete-items div {
-  padding: 10px;
-  cursor: pointer;
-  background-color: #fff;
-  border-bottom: 1px solid #d4d4d4;
-}
-
-/*when hovering an item:*/
-.autocomplete-items div:hover {
-  background-color: #e9e9e9;
-}
-
-/*when navigating through the items using the arrow keys:*/
-.autocomplete-active {
-  background-color: DodgerBlue !important;
-  color: #ffffff;
-}
-
-
-
-
-
-
-
-
-</style>
-<style>
-
-/* Style the tab */
-.tab {
-  overflow: auto;
-}
-
-/* Style the buttons inside the tab */
-.tab button {
-  background-color: inherit;
-  float: left;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 6px 10px;
-  transition: .3s;
-  font-size: 17px;
-}
-
-/* Change background color of buttons on hover */
-.tab button:hover {
-  background-color: #ddd;
-
-}
-
-/* Create an active/current tablink class */
-.tab button.active {
-  background-colo: #007bff !important;
-  color: #17a2b8 !important;
-  border-bottom: 3px solid #17a2b8;
-}
-
-/* Style the tab content */
-.tabcontent {
-  display: none;
-  border-top: none;
-}
-
-
-</style>
-
-<script>
-function openCity(evt, cityName) {
-  var i, tabcontent, tablinks;
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-  document.getElementById(cityName).style.display = "block";
-  evt.currentTarget.className += " active";
-}
-
-</script>
 <script>
 // Get the element with id="defaultOpen" and click on it
 document.getElementById("defaultOpen").click();
 
 </script>
+
 {% endblock %}

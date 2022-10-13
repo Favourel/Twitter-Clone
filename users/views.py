@@ -9,6 +9,11 @@ from blog.models import *
 from users.models import User
 from itertools import chain
 from django.db.models import F
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import authentication, permissions, serializers
+from users import models
 
 
 def register(request):
@@ -47,7 +52,7 @@ def register(request):
     return render(request, 'users/register.html', context)
 
 
-# def registerr(request):
+# def register(request):
 #     form = RegisterForm()
 #     if request.method == "POST":
 #         if form.is_valid():
@@ -210,3 +215,246 @@ def follower_view(request, username):
         "post_notification_count": post_notification_count,
     }
     return render(request, "users/follows.html", context)
+
+
+@login_required
+def profile_view(request, username):
+    try:
+        if User.objects.get(username=username).is_active:
+            user_profile = get_object_or_404(User, username=username)
+            if request.user not in user_profile.block_list.all():
+                user_profile = get_object_or_404(User, username=username)
+                notification_count = Notification.objects.filter(user=request.user, is_seen=False).count()
+                post_notification_count = PostNotification.objects.filter(user=request.user, is_seen=False).count()
+                posts = Post.objects.filter(author=user_profile).order_by("-date_posted")
+                posts_commented = BlogComment.objects.filter(user=user_profile).order_by("-date_posted")
+                posts_reposted = BlogRepost.objects.filter(user=user_profile).order_by("-date_posted")
+                posts_liked = Post.objects.filter(like=user_profile).order_by("-date_posted")
+                # editing the next line
+                suggested_followers = user_profile.following.all().exclude(id__in=request.user.following.all()).exclude(
+                    id=request.user.id).order_by("?")[:5]
+
+                followed_by = request.user.following.filter(id__in=user_profile.follower.all())[:1]
+                followed_by_ = request.user.following.filter(id__in=user_profile.follower.all())
+                followed_by_count = followed_by_.count()
+
+                # UserStat.objects.filter(user=user_profile).update(account_visit=F('account_visit')+1)
+                if not request.user == user_profile:
+                    user_profile.account_visit = (user_profile.account_visit + 1)
+                    user_profile.save()
+
+                if request.method == 'POST':
+                    form = UserUpdateForm(request.POST, request.FILES, instance=request.user)
+
+                    if form.is_valid():
+                        form = form.save(commit=False)
+                        image_path = form.image.path
+
+                        # if os.path.exists(image_path):
+                        #     os.remove(image_path)
+                        #     print(image_path)
+
+                        form.save()
+                        print(image_path)
+
+                        messages.success(request, 'Your account has been updated!')
+                        return redirect(f"../{request.user}/blog/")
+                        # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                    else:
+                        # i changed the error popup
+                        messages.warning(request, 'error')
+                        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                else:
+                    form = UserUpdateForm(instance=request.user)
+
+                account_engaged = user_profile.userstat_set.all()
+
+                user_profile_posts = user_profile.post_set.all()
+                media_count = BlogImages.objects.filter(post__in=user_profile_posts).count()
+                context = {
+                    "form": form,
+                    "posts": posts,
+                    "posts_liked": posts_liked,
+                    "posts_commented": posts_commented,
+                    "posts_reposted": posts_reposted,
+                    "user_profile": user_profile,
+                    "suggested_followers": suggested_followers,
+                    "notification_count": notification_count,
+                    "followed_by": followed_by,
+                    "followed_by_count": followed_by_count,
+                    "account_engaged_count": account_engaged,
+                    "media_count": media_count,
+                    "post_notification_count": post_notification_count,
+                }
+                return render(request, "blog/a_follower_post_view.html", context)
+            else:
+                messages.warning(request, "This user restricted you from viewing their profile")
+                return redirect("/")
+        else:
+            messages.warning(request, "This account can't be reached because it has been restricted by Elodimuor")
+            return redirect("/")
+    except ObjectDoesNotExist:
+        messages.error(request, "NO ACTIVE USER FOUND")
+        return redirect("error404")
+
+
+class UserFollowerApi(APIView):
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, username, format=None):
+        obj = get_object_or_404(models.User, username=username)
+        user = request.user
+        updated = False
+        following = False
+        if not user in obj.block_list.all():
+            if user in obj.follower.all():
+                following = False
+                obj.follower.remove(user)
+                user.following.remove(obj)
+                user.post_notification.remove(obj)
+                # user.block_list.add(obj)
+
+                notify = Notification.objects.get(sender=user, user=obj, notification_type=3)
+                notify.delete()
+
+            else:
+                following = True
+                obj.follower.add(user)
+                user.following.add(obj)
+
+                notify = Notification(sender=user, user=obj, notification_type=3)
+                notify.save()
+
+                data = {
+                    'updated': updated,
+                    'following': following,
+                    'follower_count': obj.follower.count(),
+                }
+                return Response(data)
+            updated = True
+        else:
+            following = False
+            not_follow = True
+            data = {
+                # 'updated': updated,
+                # 'following': following,
+                'not_follow': not_follow,
+                'messages': f"Can not follow {obj}",
+            }
+            return Response(data)
+        data = {
+            'updated': updated,
+            'following': following,
+            'follower_count': obj.follower.count(),
+        }
+        return Response(data)
+
+
+class PostNotificationApi(APIView):
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, username, format=None):
+        user = request.user
+        obj = get_object_or_404(User, username=username)
+        updated = False
+        post_notify = False
+        if user:
+            if user in obj.post_notification.all():
+                post_notify = False
+                obj.post_notification.remove(user)
+            else:
+                post_notify = True
+                obj.post_notification.add(user)
+
+                data = {
+                    "updated": updated,
+                    "post_notify": post_notify,
+                    "messages": "You will get notified when they post"
+                }
+                return Response(data)
+            updated = True
+        data = {
+            "updated": updated,
+            "post_notify": post_notify,
+            "messages": "You will get notified when they post"
+        }
+        return Response(data)
+
+
+class MuteProfileApi(APIView):
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, username, format=None):
+        user = request.user
+        obj = get_object_or_404(User, username=username)
+        updated = False
+        mute_profile = False
+
+        if obj in user.mute_list.all():
+            mute_profile = False
+            user.mute_list.remove(obj)
+            updated = True
+            data = {
+                "updated": updated,
+                "mute_profile": mute_profile,
+                "messages": f"{obj} has been unmuted."
+            }
+
+            return Response(data)
+
+        else:
+            mute_profile = True
+            user.mute_list.add(obj)
+            updated = True
+
+            data = {
+                "updated": updated,
+                "mute_profile": mute_profile,
+                "messages": f"{obj} has been muted."
+            }
+
+            return Response(data)
+
+
+class BlockProfileApi(APIView):
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, username, format=None):
+        user = request.user
+        obj = get_object_or_404(User, username=username)
+        updated = False
+        block_profile = False
+
+        if obj in user.block_list.all():
+            block_profile = False
+            user.block_list.remove(obj)
+            updated = True
+            data = {
+                "updated": updated,
+                "block_profile": block_profile,
+                "messages": f"{obj} has been unblocked."
+            }
+
+            return Response(data)
+
+        else:
+            block_profile = True
+            user.block_list.add(obj)
+            user.post_notification.remove(obj)
+            user.follower.remove(obj)
+            obj.following.remove(user)
+            notify = Notification.objects.get(sender=user, user=obj, notification_type=3)
+            notify.delete()
+            updated = True
+
+            data = {
+                "updated": updated,
+                "block_profile": block_profile,
+                "messages": f"{obj} has been blocked."
+            }
+
+            return Response(data)

@@ -35,9 +35,13 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
     <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-firestore.js"></script>
     <script src="{% static 'js/firebase.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/search.css' %}">
+    <script rel="stylesheet" src="{% static 'js/main.js' %}"></script>
     <script>
         // using jQuery
         function getCookie(name) {
@@ -71,7 +75,6 @@
         });
     </script>
 <!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
-      <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 
     <script>
         var files;
@@ -188,47 +191,6 @@
 
 <style>
 
-body {
-  background-color: #f6f9fc !important;
-  color: #333333;
-  margin-top: 5rem;
-
-}
-@media screen and only (max-width: 1000px){
-    body {
-        margin-top: 5rem;
-    }
-    .navbar {
-        margin-bottom: 5rem;
-    }
-}
-
-.box-element{
-    box-shadow:hsl(0, 0%, 80%) 0 0 16px;
-    background-color: ;
-    border-radius: 4px;
-    padding: 8px;
-}
-h1,h2,h3,h4,h6{
-    color:hsl(0, 0%, 30%);
-}
-
-.container {
-    margin-top: .5rem;
-    max-width: 90%;
-    padding-right: 7px;
-    padding-left: 7px;
-    margin-top: 85px;
-
-}
-@media only screen and (max-width: 1000px) {
-    .container {
-        max-width: 70rem;
-        overflow-x: hidden;
-        top: 100px;
-        margin-top: 100px;
-    }
-}
 </style>
 <script>
  $(document).ready(function(){
@@ -769,105 +731,19 @@ function sendMessage() {
 </style>
 <div class="container">
     <style>
-        .alert-success {
-            font-weight: 400;
-            font-size: 13px;
-            margin: 0 0 10px 0;
-            background: #dfd url(../images/icon-yes.svg) 40px 12px no-repeat;
-            background-size: 16px auto;
-            color: #333;
-        }
-        .alert-warning {
-            background: #ffc url(../images/icon-alert.svg) 40px 14px no-repeat;
-            background-size: 14px auto;
-            color: #333;
-            display: block;
-            font-weight: 400;
 
-            margin: 0 0 10px 0;
-        }
-
-        .alert-error {
-            background: #ffefef url(../images/icon-no.svg) 40px 12px no-repeat;
-            background-size: 16px auto;
-            color: #333;
-            display: block;
-            font-weight: 400;
-
-            margin: 0 0 10px 0;
-        }
 
     </style>
 
     <style>
-        @media (min-width: 48em) {
-            #overlay{
-              position: relative; /* Stay in place */
-              padding-bottom: 20px; /* Location of the box */
 
-              top: 1;
-              width: auto; /* Full width */
-              height: auto; /* Full height */
-              text-align: center;
-              box-shadow:hsl(0, 0%, 80%) 0 0 16px;
-
-            }
-        }
-        @media only screen and (max-width: 1000px) {
-            #overlay{
-              position: fixed; /* Stay in place */
-              z-index: -1; /* Sit on top */
-              padding-bottom: 80px; /* Location of the box */
-              left: 0;
-              top: 0;
-              width: 100%; /* Full width */
-              height: auto; /* Full height */
-              text-align: center;
-            }
-        }
     </style>
     <script type="text/javascript">
         window.setTimeout("document.getElementById('overlay').style.display='none';", 5000);
     </script>
     <b class="screen-overlay"></b>
     <style>
-        .article-img {
-          height: 60px;
-          width: 60px;
-          margin-right: 13px;
 
-        }
-        @media only screen and (max-width: 1000px) {
-            .article-img {
-              height: 55px;
-              width: 55px;
-              margin-right: 13px;
-            }
-        }
-
-        .article-metadata {
-          padding-bottom: 1px;
-          margin-bottom: 4px;
-          border-bottom: 1px solid #e3e3e3
-        }
-
-        .article-metadata a:hover {
-          color: #333;
-          text-decoration: none;
-        }
-
-        .article-svg {
-          width: 25px;
-          height: 25px;
-          vertical-align: middle;
-        }
-
-        .account-img {
-          height: 105px;
-          width: 105px;
-          margin-right: 20px;
-          margin-bottom: 16px;
-        }
     </style>
     <div class="row">
         <div class="col-lg-3 phone_size">
@@ -939,27 +815,7 @@ function sendMessage() {
                                 </div>
                             </div>
                             <style>
-                                .btn {border-radius: 24px}
-                                .bi-nut .bi {
-                                    position:relative;
-                                }
-                                .badge_ {
-                                    border-radius:100%;
-                                    position:absolute;
-                                    top:6px;
-                                    left: 32px;
-                                }
-                                .badge_ {
-                                    display: inline-block;
-                                    padding: .25em .4em;
-                                    font-size: 75%;
-                                    font-weight: 700;
-                                    line-height: 1;
-                                    text-align: center;
-                                    white-space: nowrap;
-                                    vertical-align: baseline;
-                                    border-radius: .35rem;
-                                }
+
 
                             </style>
                         </a>
@@ -990,48 +846,7 @@ function sendMessage() {
         <br>
 
         <style>
-            @media only screen and (max-width: 1000px){
-                .phone_size{
-                    display: none;
-                    }
-            }
-            .card {
-                box-shadow: 0 2px 1rem rgba(0,0,0,.15);
-            }
-            .border-0 {
-                border: 0!important;
-            }
-            .card {
-                position: relative;
-                display: -webkit-flex;
-                display: flex;
-                -webkit-flex-direction: column;
-                flex-direction: column;
-                min-width: 0;
-                word-wrap: break-word;
-                background-color: transparent;
-                background-clip: border-box;
-                border: 0 solid transparent;
-                border-radius: 5px;
-            }
-            .customer-profile {
-                padding: 1rem;
-                text-align: center;
-                background: #f8f9fa;
-            }
 
-            .customer-nav a {
-                text-decoration: none;
-                background-color: transparent;
-            }
-            .customer-nav a:hover {
-                background-color: #f8f9fa;
-            }
-            .customer-nav .list-group-item.active {
-                border-color: #dee2e6;
-                background: #dee2e6;
-                color: #212529;
-            }
 
         </style>
         <br>
@@ -1040,94 +855,6 @@ function sendMessage() {
 
 </div>
 <style>
-    .toast-bottom-left, .toast-bottom-center, .toast-bottom-right {
-    bottom: 1.5rem;
-}
-@media (max-width: 575.98px)
-.toast-container {
-    padding-right: 1rem;
-    padding-left: 1rem;
-}
-.toast-container {
-  position: fixed; /* Stay in place */
-  z-index: 2; /* Sit on top */
-  padding-top: 80px; /* Location of the box */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: auto; /* Full height */
-
-}
-
-.toast-top-center .toast, .toast-bottom-center .toast {
-    margin-right: auto;
-    margin-left: auto;
-}
-.toast.hide {
-    display: none;
-}
-.fade:not(.show) {
-    opacity: 0;
-}
-.toast {
-    display: none;
-    opacity: 0;
-}
-
-.toast {
-    max-width: 350px;
-    font-size: .875rem;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 0 solid rgba(0,0,0,0);
-    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1);
-
-    opacity: 0;
-    border-radius: .3125rem;
-}
-.fade {
-    transition: opacity 0.15s linear;
-}
-.text-white {
-    color: #fff !important;
-}
-.bg-success {
-    background-color: #42d697 !important;
-}
-.toast-header {
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-align: center;
-    align-items: center;
-    padding: .25rem .75rem;
-    color: #7d879c;
-    background-color: rgba(255,255,255,0.85);
-    background-clip: padding-box;
-    border-bottom: 0 solid rgba(0,0,0,0.05);
-}
-.toast-header [class*='czi-'] {
-    font-size: 1.25em;
-}
-
-button.close {
-    padding: 0;
-    background-color: transparent;
-    border: 0;
-}
-.close {
-    transition: opacity 0.15s ease-in-out;
-    opacity: .7;
-}
-
-.close {
-    float: right;
-    font-size: 1.5rem;
-    font-weight: 300;
-    line-height: 1;
-    color: #4b566b;
-    text-shadow: none;
-    opacity: .5;
-}
 
 </style>
 
@@ -1156,42 +883,6 @@ button.close {
     </svg>
 </a>
 <style>
-.scroll-to-top{
-    position:fixed;
-    border-radius: 50%;
-    box-shadow:hsl(0, 0%, 80%) 0 0 16px;
-    right:1rem;
-    bottom:1rem;
-    display:none;
-    width:3rem;
-    height:3rem;
-    color:#fff;
-    background:#007bff;
-    padding: 8px;
-
-}
-.scroll-to-top:focus,.scroll-to-top:hover{
-    color:#fff
-}
-.scroll-to-top:hover{
-    background:#5a5c69
-}
-.scroll-to-top i{
-    font-weight:800
-}
-@-webkit-keyframes growIn{
-    0%{transform:scale(.9);
-    opacity:0
-}
-100%{
-    transform:scale(1);opacity:1}
-}
-@keyframes growIn{
-    0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
-    In{0%{opacitation-name:fadeIn;animation-name:fadeIn;-webkit-animation-duration:.2s;animation-duration:.2s;
-    -webkit-animation-timing-function:opacity cubic-bezier(0,1,.4,1);
-    animation-timing-function:opacity cubic-bezier(0,1,.4,1)
-    }
 
 </style>
 <script>

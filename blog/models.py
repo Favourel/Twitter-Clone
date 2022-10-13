@@ -16,6 +16,7 @@ class Post(models.Model):
     content = RichTextField()
     # content = HTMLField()
     date_posted = models.DateTimeField(default=timezone.now)
+    os = models.CharField(max_length=15,  blank=True, null=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     like = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='like')
 
