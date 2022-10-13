@@ -60,7 +60,7 @@ def error_500(request):
     return render(request, 'blog/error404.html', data)
 
 
-def Convert(a):
+def convert(a):
     it = iter(a)
     res_dct = dict(zip(it, it))
     return res_dct
@@ -99,7 +99,6 @@ def blog_list_view(request):
     notification_count = Notification.objects.filter(user=request.user, is_seen=False).count()
     post_notification_count = PostNotification.objects.filter(user=request.user, is_seen=False).count()
 
-    words = {}
     content = Post.objects.all().values_list("content", "content")
     sublist = []
     for i in content:
@@ -109,23 +108,13 @@ def blog_list_view(request):
     print(string.split())
     central_list = []
 
-    for word in string.split():
-        if len(word) >= 5:
-            central_list.append(word)
-
-            if word in words:
-                words[word] += 1
-            else:
-                words[word] = 1
-    top_10_words = sorted(words.items(), key=lambda x: -x[1])[:10]
-
     counter = Counter(central_list)
     top_words = counter.most_common(10)
     print(top_words)
 
     out = [item for t in top_words for item in t]
 
-    get_keys = Convert(out)
+    get_keys = convert(out)
     top_trends = list(get_keys.keys())
     top_trends_count = list(get_keys.values())
 
