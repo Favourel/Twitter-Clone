@@ -289,6 +289,7 @@ def repost_comment(request, pk):
                 form.user = request.user
                 form.post = obj
                 form.save()
+                dict_object = model_to_dict(form)
                 dict_obj = model_to_dict(form.user)
                 dict_obj_ = model_to_dict(form.post.user)
 
@@ -308,9 +309,11 @@ def repost_comment(request, pk):
                 "comment": request.POST.get('comment', None),
                 "author": dict_obj.get("display_name"),
                 "author_username": dict_obj.get("username"),
-                "author_image": json.dumps(dict_obj["image"], cls=ExtendedEncoder),
+                "author_image": ExtendedEncoder.default(dict_obj.get("image"), dict_obj.get("image")),
                 "replying": dict_obj_["username"],
-                "message": "Your comment has been sent"
+                "message": "Your comment has been sent",
+                "is_verified": dict_obj.get("is_verified"),
+                "date": DateExtendedEncoder.default(dict_object.get("date_posted"), dict_object.get("date_posted")),
             }
             print(json.dumps(dict_obj["image"], cls=ExtendedEncoder))
             # print(json.load(dict_obj.get("image"), default=str, sort_keys=True, indent=1))

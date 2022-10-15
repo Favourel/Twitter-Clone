@@ -9,7 +9,7 @@ register = template.Library()
 @register.filter(name='mentions', is_safe=True)
 @stringfilter
 def mentions(value):
-    value = re.sub(r'@(\w+)', r'<a href="/\1/post">@\1</a>', value)
+    value = re.sub(r'@(\w+)', r'<span><a href="/\1/post">@\1</a></span>', value)
     return value
 
 
