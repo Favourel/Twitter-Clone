@@ -21,9 +21,9 @@ def hashtags(value):
 
 
 @register.filter
-@stringfilter
+# @register.inclusion_tag('blog/search.html')
 def highlight_search(text, search):
-    highlighted = text.replace(search, '<b><em>{}</em></b>'.format(search))
+    highlighted = text.replace(search, '<strong>{}</strong>'.format(search))
     return mark_safe(highlighted)
 
 

@@ -43,7 +43,7 @@
     {% if results_post or results_people %}
     <div class="box-element">
 
-        <h3 class="mt-2">Results for <strong>"{{ request.GET.q }}"</strong></h3>
+        <h3 class="mt-2">Results for <strong>"{{ query}}"</strong></h3>
 
         <div class="tab row mt-1">
             <div class="col-lg-6 col-6">
@@ -117,7 +117,7 @@
                             </a>
                             <a class="text-decoration-none text-secondary mt-0"
                                href="{{ post.post.get_absolute_url }}">
-                                <h6>{{ post.post.content|safe|truncatewords:'20'|mentions|hashtags }}</h6>
+                                <h6>{{ post.post.content|safe|truncatewords:'20'|mentions|hashtags|highlight_search:query }}</h6>
                             </a>
                         </div>
                         {% elif post.repost %}
@@ -144,7 +144,7 @@
                             </a>
                             <a class="text-decoration-none text-secondary article-content mt-1"
                                href="{{ post.repost.get_repost_absolute_url }}">
-                                <h6 class="mb-1">{{ post.repost.text|safe|truncatewords:'20'|mentions|hashtags }}</h6>
+                                <h6 class="mb-1">{{ post.repost.text|safe|truncatewords:'20'|mentions|hashtags|highlight_search:query }}</h6>
                             </a>
                         </div>
                         {% else %}

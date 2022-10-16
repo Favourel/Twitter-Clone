@@ -523,7 +523,7 @@ $(document).ready(function(){
                     {% else %}
                     <strong class="account-heading">` + data.author_username + `</strong></a>
                     {% endif %}
-                    {% if data.is_verified == "True" %}
+                    {% if request.user.is_verified %}
 
                         <img width="15px" height="15px" class="mb-1"
                            src="{% static 'images/verify.png' %}" alt="">
@@ -658,10 +658,25 @@ function sendMessage() {
                     <div class="media-body">
                         <a class="text-dark d-flex" href="/` + data.username + `/post">
                         {% if request.user.display_name %}
-                            <strong class="account-heading">` + data.author + ` </strong> &bull; <b> ` + data.date + `</b>
+                            <strong class="account-heading">` + data.author + ` </strong>
+                             {% if request.user.is_verified %}
+
+                                <img width="15px" height="15px" class="mt-1 mr-1 ml-1"
+                                   src="{% static 'images/verify.png' %}" alt="">
+
+                            {% endif %}
+                             &bull; <b> ` + data.date + `</b>
                         {% else %}
-                            <strong class="account-heading">` + data.username + ` </strong> &bull; <b> ` + data.date + `</b>
+                            <strong class="account-heading">` + data.username + ` </strong>
+                            {% if request.user.is_verified %}
+
+                                <img width="15px" height="15px" class="mt-1 mr-1 ml-1"
+                                   src="{% static 'images/verify.png' %}" alt="">
+
+                            {% endif %}
+                            &bull; <b> ` + data.date + `</b>
                         {% endif %}
+
                         </a>
                         <p class="text-secondary mb-1">@` + data.username + `</p>
                         <a class="text-dark d-flex" href="/post/` + data.pk + `">

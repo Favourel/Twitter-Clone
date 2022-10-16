@@ -25,6 +25,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from datetime import date, datetime
 from blog.templatetags.mentions import mentions
 from collections import Collection, Counter
+from django.contrib.sessions.models import Session
 
 
 class ExtendedEncoder(DjangoJSONEncoder):
@@ -105,7 +106,6 @@ def blog_list_view(request):
         for c in i:
             sublist.append(c)
     string = " ".join([str(item) for item in sublist])
-    print(string.split())
     central_list = []
     for word in string.split():
         if len(word) >= 5:
@@ -113,13 +113,23 @@ def blog_list_view(request):
 
     counter = Counter(central_list)
     top_words = counter.most_common(10)
-    print(top_words)
 
     out = [item for t in top_words for item in t]
 
     get_keys = convert(out)
     top_trends = list(get_keys.keys())
     top_trends_count = list(get_keys.values())
+
+    sessions = Session.objects.filter(expire_date__gte=timezone.now())
+    uid_list = []
+
+    # Build a list of user ids from that query
+    for session in sessions:
+        data = session.get_decoded()
+        uid_list.append(data.get('_auth_user_id', None))
+
+    # Query all logged in users based on id list
+    user_log = User.objects.filter(id__in=uid_list)
 
     context = {
         'blog_post': combined_posts,
@@ -131,7 +141,8 @@ def blog_list_view(request):
         "form": CreateForm(),
         "recent_search": RecentSearch.objects.filter(user=request.user),
         "top_trends": top_trends,
-        "top_trends_count": top_trends_count
+        "top_trends_count": top_trends_count,
+        "user_log": user_log
     }
     return render(request, 'blog/blog_list.html', context)
 
@@ -342,7 +353,7 @@ def search(request):
             lookups_comment = Q(comment__icontains=query)
             results_people = models.User.objects.filter(lookups_people).distinct()
             results_post = Post.objects.filter(lookups_post).distinct().order_by("-date_posted").exclude(author__in=request.user.block_list.all())
-            results_lookups_repost = BlogRepost.objects.filter(lookups_repost).order_by("-date_posted").exclude(user__in=request.user.block_list.all())
+            results_lookups_repost = BlogRepost.objects.filter(lookups_repost).distinct().order_by("-date_posted").exclude(user__in=request.user.block_list.all())
             # results_lookups_comment = BlogComment.objects.filter(lookups_comment).order_by("-date_posted")
             combined = sorted(
                 chain(results_post, results_lookups_repost),
