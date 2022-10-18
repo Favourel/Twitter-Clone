@@ -10,7 +10,6 @@ urlpatterns = [
     path('repost/<int:pk>/add/', blog_view.repost_add_view, name='repost_add_view'),
     path('repost-/<int:pk>/add/', blog_view.repost_add_view_, name='repost_add_view-'),
     path('search/', blog_view.search, name='search'),
-    path('<str:username>/story/', blog_view.story_view, name='story'),
     path('api/<int:pk>/add/', blog_view.PostLikeApi.as_view(), name='like-api'),
     path('repost/<int:pk>/add_like/', blog_view.RepostLikeApi.as_view(), name='repost_like-api'),
     path('create_post/', blog_view.create_post, name='create_post'),

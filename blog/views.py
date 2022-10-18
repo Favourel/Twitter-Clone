@@ -683,15 +683,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView, ABC):
         return False
 
 
-def story_view(request, username):
-    user = get_object_or_404(User, username=username)
-    story = Story.objects.filter(user=user)
-    context = {
-        "story": story
-    }
-    return render(request, "blog/story.html", context)
-
-
 # @login_required
 # def post(request):
 #     ImageFormSet = modelformset_factory(BlogImages, form=ImageForm, extra=4)

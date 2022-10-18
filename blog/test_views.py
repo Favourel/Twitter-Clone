@@ -206,3 +206,32 @@ class ViewTestCase(TestCase):
         self.assertEquals(response_2.status_code, 200)
         self.assertTemplateNotUsed(response, "blog/repost_add_view.html")
         self.assertTemplateNotUsed(response_2, 'blog/repost_add_view_.html')
+
+    def test_post_repost_like(self):
+        response_login = self.client.post("/login/", self.credentials, follow=True)
+        self.assertTrue(response_login.context["user"].is_authenticated)
+
+        self.post_1.like.set([self.user_1.pk, self.user_2.pk])
+        self.blog_repost_1.like.set([self.user_1.pk, self.user_2.pk])
+
+        response_url = reverse('like-api', kwargs={'pk': 1})
+        response_url_repost = reverse('repost_like-api', kwargs={'pk': 1})
+
+        response = self.client.get(response_url)
+        response_repost = self.client.get(response_url_repost)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response_repost.status_code, 200)
+        self.assertEquals(self.post_id.like.count(), 3)
+        self.assertEquals(self.repost_id.like.count(), 3)
+
+    def test_anonymous_cannot_see_page(self):
+        response = self.client.get(reverse("blog_home"))
+        self.assertRedirects(response, "/login/?next=/")
+
+    def test_authenticated_user_can_see_page(self):
+        self.client.force_login(user=self.user_1)
+        response = self.client.get(reverse("blog_home"))
+        self.assertEqual(response.status_code, 200)
+
+
