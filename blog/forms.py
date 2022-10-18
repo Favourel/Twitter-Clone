@@ -1,5 +1,6 @@
 from .models import BlogComment, Post, BlogRepost, RepostComment, BlogImages
 from django import forms
+from djrichtextfield.widgets import RichTextWidget
 
 
 class UpdateForm(forms.ModelForm):
@@ -19,6 +20,9 @@ class CreateForm(forms.ModelForm):
         "placeholder": "Create Post?"
 
     }))
+    # content = forms.CharField(required=True, widget=RichTextWidget(attrs={
+    #     "name": "content",
+    # }))
 
     class Meta:
         model = Post

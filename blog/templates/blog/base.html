@@ -37,9 +37,6 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
-    <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-firestore.js"></script>
-    <script src="{% static 'js/firebase.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/search.css' %}">
     <script rel="stylesheet" src="{% static 'js/main.js' %}"></script>
     <script>
@@ -548,69 +545,6 @@ $(document).ready(function(){
         console.log(errorThrown)
     }
 })
-</script>
-<script>
-var firebaseConfig = {
-  apiKey: "AIzaSyBz63uvqfbNoLrTe4n2ADQnPb1EziIkDbI",
-  authDomain: "elodimuor-blog.firebaseapp.com",
-  databaseURL: "https://elodimuor-blog-default-rtdb.firebaseio.com",
-  projectId: "elodimuor-blog",
-  storageBucket: "elodimuor-blog.appspot.com",
-  messagingSenderId: "903008405820",
-  appId: "1:903008405820:web:a8bd0a28ab39dfbdd8b639",
-  measurementId: "G-C22MNN06SZ"
-};
-
-firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
-db.collection('notifications').where("is_read", "==", false).onSnapshot(function
-    (querySnapshot) {
-    var undreaded_box = document.getElementById('undreaded_box');
-    undreaded_box.innerHTML = '';
-    querySnapshot.forEach(function (snapshot) {
-        undreaded_box.innerHTML +=
-            `<div id="` + snapshot.id + `" class="alert alert-success" role="alert">
-                    <h4 class="alert-heading">New Message</h4>
-                    <p>` + snapshot.data().message + `</p>
-                    <hr>
-                    <a href="#" class="make_as_read_link">Make As Read</a>
-                 </div>`;
-        $('.make_as_read_link').click(function (e) {
-            e.preventDefault();
-            makeAsRead(snapshot.id);
-        });
-    });
-});
-db.collection('notifications').where("is_read", "==", true).onSnapshot(function
-    (querySnapshot) {
-    var readed_box = document.getElementById('readed_box');
-    readed_box.innerHTML = '';
-    querySnapshot.forEach(function (snapshot) {
-        readed_box.innerHTML +=
-            `<div id="` + snapshot.id + `" class="alert alert-primary" role="alert">
-                    <h4 class="alert-heading">Old Message</h4>
-                    <p>` + snapshot.data().message + `</p>
-                 </div>`;
-    });
-});
-
-function makeAsRead(snapshot_id) {
-    $.ajax("/ajax/make-as-read/?snapshot_id=" + snapshot_id, {
-        success: function (data) {
-            console.log(data);
-        }
-    });
-}
-
-function sendMessage() {
-    var message_element = document.getElementById('id_message');
-    $.ajax('/ajax/send-message?message=' + message_element.value, {
-        success: function (data) {
-            console.log(data);
-            message_element.value = '';
-        }
-    });
-}
 </script>
 
 <script>

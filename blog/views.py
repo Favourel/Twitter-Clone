@@ -112,7 +112,7 @@ def blog_list_view(request):
             central_list.append(word)
 
     counter = Counter(central_list)
-    top_words = counter.most_common(10)
+    top_words = counter.most_common(7)
 
     out = [item for t in top_words for item in t]
 
@@ -741,17 +741,17 @@ def ajax_posting(request):
             return JsonResponse(data)  # return response as JSON
 
 
-def ajax_posting_comment(request, pk):
-    if request:
-        blog_post = get_object_or_404(Post, pk=pk)
-        content = request.POST.get('content', None)  # getting data from first_name input
-        response_data = {}
-
-        post = Post(author=request.user, content=content)
-        post.save()
-
-        if content:  # checking if first_name and last_name have value
-            data = {
-                'msg': 'Your form has been submitted successfully'  # response message
-            }
-            return JsonResponse(data)  # return response as JSON
+# def ajax_posting_comment(request, pk):
+#     if request:
+#         blog_post = get_object_or_404(Post, pk=pk)
+#         content = request.POST.get('content', None)  # getting data from first_name input
+#         response_data = {}
+#
+#         post = Post(author=request.user, content=content)
+#         post.save()
+#
+#         if content:  # checking if first_name and last_name have value
+#             data = {
+#                 'msg': 'Your form has been submitted successfully'  # response message
+#             }
+#             return JsonResponse(data)  # return response as JSON

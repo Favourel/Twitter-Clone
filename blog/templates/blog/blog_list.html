@@ -80,6 +80,10 @@
 
                     <style>
                         label{display: none}
+                        .tox-statusbar{
+                            display: none !important;
+                            }
+                        .tox-notification{display: none !important;}
 
                     </style>
                 </form>
@@ -225,7 +229,7 @@
             {% elif post.post %}
             <b class="text-secondary reposted mb-1" style="font-size: 12.5px;">
                 {% if post.user.display_name %}
-                {{ post.user.display_name }}
+                <a href="{% url 'a_follower_post_view' post.user %}" class="text-secondary">{{ post.user.display_name }}</a>
                 {% else %}
                 {{ post.user }}
                 {% endif %}
