@@ -109,6 +109,8 @@ def update_profile(request):
     context = {
         "form": form,
         "notification_count": notification_count,
+        "post_notification_count": PostNotification.objects.filter(user=request.user, is_seen=False).count()
+
     }
     return render(request, 'users/update_profile.html', context)
 
@@ -258,7 +260,7 @@ def profile_view(request, username):
                         print(image_path)
 
                         messages.success(request, 'Your account has been updated!')
-                        return redirect(f"../{request.user}/blog/")
+                        return redirect(f"../{request.user}/post/")
                         # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
                     else:
                         # i changed the error popup

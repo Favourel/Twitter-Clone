@@ -38,7 +38,7 @@ class ViewTestCase(TestCase):
         # send login data
         response_login = self.client.post('/login/', self.credentials, follow=True)
         # should be logged in now
-        self.assertTrue(response_login.context['user'].is_active)
+        self.assertTrue(response_login.context['user'].is_authenticated)
         response_blog_home = self.client.get(reverse("blog_home"))
         self.assertEqual(response_blog_home.status_code, 200)
         self.assertTemplateUsed(response_blog_home, 'blog/blog_list.html')
@@ -50,7 +50,7 @@ class ViewTestCase(TestCase):
         # send login data
         response = self.client.post('/login/', self.credentials, follow=True)
         # should be logged in now
-        self.assertTrue(response.context['user'].is_active)
+        self.assertTrue(response.context['user'].is_authenticated)
 
         self.post = Post.objects.get(pk=1)
         response = self.client.get(
@@ -212,6 +212,7 @@ class ViewTestCase(TestCase):
         self.assertTrue(response_login.context["user"].is_authenticated)
 
         self.post_1.like.set([self.user_1.pk, self.user_2.pk])
+        self.post_1.like.remove(self.user_1.pk)
         self.blog_repost_1.like.set([self.user_1.pk, self.user_2.pk])
 
         response_url = reverse('like-api', kwargs={'pk': 1})
@@ -222,7 +223,8 @@ class ViewTestCase(TestCase):
 
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response_repost.status_code, 200)
-        self.assertEquals(self.post_id.like.count(), 3)
+        self.assertEquals(self.post_id.like.count(), 2)
+        self.assertEquals(self.post_id.like.count(), 2)
         self.assertEquals(self.repost_id.like.count(), 3)
 
     def test_anonymous_cannot_see_page(self):
