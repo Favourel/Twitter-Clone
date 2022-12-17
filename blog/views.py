@@ -70,7 +70,7 @@ def convert(a):
 @login_required
 def blog_list_view(request):
     user_list = User.objects.all().order_by('?').exclude(id__in=request.user.following.all()).exclude(
-        username=request.user).exclude(id__in=request.user.block_list.all())[:5]
+        username=request.user).exclude(id__in=request.user.block_list.all())[:4]
     user_following = request.user.following.all()
     user_block_list = request.user.block_list.all()
     user_mute_list = request.user.mute_list.all()
@@ -179,7 +179,7 @@ def push_feed(request):
         data = {
             "message": "Your post has been made",
             "author": dict_obj.get("display_name"),
-            "email": dict_obj.get("username"),
+            "username": dict_obj.get("username"),
             "author_image": ExtendedEncoder.default(dict_obj.get("image"), dict_obj.get("image")),
             "date": DateExtendedEncoder.default(dict_object.get("date_posted"), dict_object.get("date_posted")),
             "like": len(dict_object.get("like")),

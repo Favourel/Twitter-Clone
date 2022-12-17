@@ -282,7 +282,7 @@
                             </div>
                             <div class="col-md-3 col-3">
                                 <button class="tablinks" onclick="openCity(event, 'Likes')">
-                                    <b>{{ posts_liked.count|intword }} Likes</b>
+                                    <b>{{ combined_likes_count|intword }} Likes</b>
                                 </button>
                             </div>
                             <div class="col-md-3 col-3">
@@ -467,6 +467,312 @@
         {% for post in posts_liked %}
         <div class="box-element mb-3">
             <div class="content-section">
+                {% if post.text %}
+
+                <div class="media">
+                    <a class="text-dark" href="{% url 'a_follower_post_view' post.user %}">
+                        <img class="rounded-circle article-img" src="{{ post.user.image.url }}" alt="">
+                    </a>
+                    <div class="media-body">
+                        <a class="text-dark" href="{% url 'a_follower_post_view' post.user %}">
+                            <strong class="account-heading dropbtn" style="width: 50px;height:50px">
+                                {% if post.user.display_name %}
+                                {{ post.user.display_name }}
+                                {% else %}
+                                {{ post.user }}
+                                {% endif %}
+
+                                {% if post.user.is_verified %}
+                                <img width="15px" height="15px"
+                                     src="{% static 'images/verify.png' %}" alt="">
+                                {% endif %}
+                                &bull; {{ post.date_posted|date:"M d y" }}
+                            </strong>
+                            <p class="text-secondary mb-1">@{{ post.user }}</p>
+                        </a>
+                        <a href="{{post.get_repost_absolute_url}}">
+                            {% if post.text %}
+                            <h6>{{ post.text|safe|mentions|truncatewords:'70'|hashtags }}</h6>
+                            {% endif %}
+                        </a>
+                        {% if post.post %}
+                        <div style="border: 1px solid #adb5bd; border-radius: 13px; padding: 9px;">
+                            <a class="text-dark" href="{% url 'a_follower_post_view' post.post.author %}">
+                                <div class="media">
+                                    <img class="rounded-circle" style="width: 30px;height:30px"
+                                         src="{{ post.post.author.image.url }}" alt="">
+                                    <div class="media-body ml-1">
+                                        <strong class="account-heading dropbtn">
+                                            {% if post.post.author.display_name %}
+                                            {{ post.post.author.display_name }}
+                                            {% else %}
+                                            {{ post.post.author }}
+                                            {% endif %}
+
+                                            {% if post.post.author.is_verified %}
+                                            <img width="15px" height="15px"
+                                                 src="{% static 'images/verify.png' %}" alt="">
+                                            {% endif %}
+                                            &bull; {{ post.post.date_posted|date:"M d y" }}
+                                        </strong>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="text-decoration-none text-secondary text-code article-content mt-1"
+                               href="{{ post.post.get_absolute_url }}">
+                                <h6 class="mb-1">{{ post.post.content|safe|mentions|truncatewords:'20'|hashtags }}</h6>
+                            </a>
+                        </div>
+                        {% elif post.repost %}
+                        <div style="border: 1px solid #adb5bd; border-radius: 13px; padding: 9px;">
+                            <a class="text-dark" href="{% url 'a_follower_post_view' post.repost.user %}">
+                                <div class="media">
+                                    <img class="rounded-circle" style="width: 30px;height:30px"
+                                         src="{{ post.repost.user.image.url }}" alt="">
+                                    <div class="media-body ml-1">
+                                        <strong class="account-heading dropbtn">
+                                            {% if post.repost.user.display_name %}
+                                            {{ post.repost.user.display_name }}
+                                            {% else %}
+                                            {{ post.repost.user }}
+                                            {% endif %}
+
+                                            {% if post.repost.user.is_verified %}
+                                            <img width="15px" height="15px"
+                                                 src="{% static 'images/verify.png' %}" alt="">
+                                            {% endif %}
+                                            &bull; {{ post.repost.date_posted|date:"M d y" }}
+
+                                        </strong>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="text-decoration-none text-code text-secondary article-content mt-1"
+                               href="{{ post.repost.get_repost_absolute_url }}">
+                                <h6 class="mb-1">{{ post.repost.text|safe|mentions|truncatewords:'20'|hashtags }}</h6>
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="text-light"
+                             style="border: 1px solid #adb5bd; border-radius: 13px; padding: 9px; background: darkgrey; font-color: #fff">
+                            Author of this post deleted this post. It can't be seen.
+                        </div>
+                        {% endif %}
+                        <div class="mt-1">
+
+                            <div class="row">
+                                    <div class="col-lg-4 col-4">
+                                        <b>{{ post.like.count|intword }} </b>
+                                        <a data-href='{{post.get_api_like_url}}' class="like-btn" data-toggle="tooltip"
+                                           data-placement="top" title="Like">
+                                            <img src="{% static 'images/like (2).png' %}"
+                                                 class="mb-2" style="cursor:pointer;" width="23" height="23" alt="">
+                                        </a>
+                                    </div>
+                                    <div class="col-lg-4 col-4">
+                                        <b>{{ post.blogcomment_set.count|intword }} </b>
+                                        <img onclick="openForm()" data-toggle="tooltip" data-placement="top" title="Comment"
+                                        src="{% static 'images/comment (2).png' %}" class="mb-" width="23" height="23" alt="">
+                                    </div>
+                                    <div class="col-lg-4 col-4">
+                                        <a class="text-dark" href="{{post.get_repost_url}}">
+                                            <b data-target="#postReposModal" data-toggle="modal">
+                                                {{ post.blogrepost_set.count|intword }}
+                                            </b>
+                                            <img data-toggle="tooltip" data-placement="top" title="Repost"
+                                                 src="{% static 'images/retweet (1).png' %}" class="mb-1" width="23" height="23" alt="">
+                                        </a>
+                                    </div>
+                                </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                {% elif not post.text %}
+
+                <div class="media">
+                    {% if post.author %}
+                    <a href="{% url 'a_follower_post_view' post.author %}">
+                        <img class="rounded-circle article-img" src="{{ post.author.image.url }}" alt="">
+                    </a>
+                    {% elif post.repost %}
+                    <a href="{% url 'a_follower_post_view' post.repost.user %}">
+                        <img class="rounded-circle article-img" src="{{ post.repost.user.image.url }}" alt="">
+                    </a>
+                    {% elif post.post %}
+                    <a href="{% url 'a_follower_post_view' post.post.author %}">
+                        <img class="rounded-circle article-img" src="{{ post.post.author.image.url }}" alt="">
+                    </a>
+                    {% endif %}
+                    <div class="media-body">
+                        {% if post.author %}
+                        <a class="text-dark" href="{% url 'a_follower_post_view' post.author %}">
+                            <strong class="account-heading dropbtn">
+                                {% if post.author.display_name %}
+                                {{ post.author.display_name }}
+                                {% else %}
+                                {{ post.author }}
+                                {% endif %}
+
+                                {% if post.author.is_verified %}
+                                <img width="15px" height="15px"
+                                     src="{% static 'images/verify.png' %}" alt="">
+                                {% endif %}
+                                &bull; {{ post.date_posted|date:"M d y" }}
+                            </strong>
+                        </a>
+                        {% elif post.repost.user %}
+                        <a class="text-dark" href="{% url 'a_follower_post_view' post.repost.user %}">
+                            <strong class="account-heading dropbtn">
+                                {% if post.repost.user.display_name %}
+                                {{ post.repost.user.display_name }}
+                                {% else %}
+                                {{ post.repost.user }}
+                                {% endif %}
+                                {% if post.repost.user.is_verified %}
+                                <img width="15px" height="15px"
+                                     src="{% static 'images/verify.png' %}" alt="">
+                                {% endif %}
+                                &bull; {{ post.date_posted|date:"M d y" }}
+                            </strong>
+                        </a>
+                        {% elif post.post %}
+                        <a class="text-dark" href="{% url 'a_follower_post_view' post.post.author %}">
+                            <strong class="account-heading dropbtn">
+
+                                {% if post.post.author.display_name %}
+                                {{ post.post.author.display_name }}
+                                {% else %}
+                                {{ post.post.author }}
+                                {% endif %}
+                                {% if post.post.author.is_verified %}
+                                <img width="15px" height="15px"
+                                     src="{% static 'images/verify.png' %}" alt="">
+                                {% endif %}
+                                &bull; {{ post.post.date_posted|date:"M d y" }}
+                            </strong>
+                        </a>
+                        {% endif %}
+
+                        {% if post.author %}
+                        <p class="text-secondary mb-1">@{{ post.author }}</p>
+                        {% elif post.repost.user %}
+                        <p class="text-secondary mb-1">@{{ post.repost.user }}</p>
+                        {% elif post.post %}
+                        <p class="text-secondary mb-1">@{{ post.post.author }}</p>
+                        {% endif %}
+                        {% if post.author %}
+                        <a class="text-decoration-none article-content text-code text-dark" href="{{ post.get_absolute_url }}">
+                            <h6>{{ post.content|safe|mentions|hashtags }}</h6>
+                            <div class="row p-2 br-2">
+                                {% for image in post.blogimages_set.all %}
+                                <div class="col-6 p-1">
+                                    <img width="100%" height="100%" src="{{image.image.url}}" alt="">
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </a>
+                        {% elif post.repost %}
+                        <a class="text-decoration-none article-content text-code text-dark" href="{{ post.repost.get_repost_absolute_url }}">
+                            <h6>{{ post.repost.text|safe|mentions|hashtags }}</h6>
+                            <div class="row p-2 br-2">
+                                {% for image in post.blogimages_set.all %}
+                                <div class="col-6 p-1">
+                                    <img width="100%" height="100%" src="{{image.image.url}}" alt="">
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </a>
+                        {% elif post.post %}
+                        <a class="text-decoration-none article-content text-code text-dark" href="{{ post.post.get_absolute_url }}">
+                            <h6>{{ post.post.content|safe|mentions|hashtags }}</h6>
+                        </a>
+                        {% else %}
+
+                        {% endif %}
+
+                        {% if post.author %}
+
+                        <div class="row">
+                                <div class="col-lg-4 col-4">
+                                    <b>{{ post.like.count|intword }} </b>
+                                    <a data-href='{{post.get_api_like_url}}' class="like-btn" data-toggle="tooltip"
+                                       data-placement="top" title="Like">
+                                        <img src="{% static 'images/like (2).png' %}"
+                                             class="mb-2" style="cursor:pointer;" width="23" height="23" alt="">
+                                    </a>
+                                </div>
+                                <div class="col-lg-4 col-4">
+                                    <b>{{ post.blogcomment_set.count|intword }} </b>
+                                    <img onclick="openForm()" data-toggle="tooltip" data-placement="top" title="Comment"
+                                    src="{% static 'images/comment (2).png' %}" class="mb-" width="23" height="23" alt="">
+                                </div>
+                                <div class="col-lg-4 col-4">
+                                    <a class="text-dark" href="{{post.get_repost_url}}">
+                                        <b data-target="#postReposModal" data-toggle="modal">
+                                            {{ post.blogrepost_set.count|intword }}
+                                        </b>
+                                        <img data-toggle="tooltip" data-placement="top" title="Repost"
+                                             src="{% static 'images/retweet (1).png' %}" class="mb-1" width="23" height="23" alt="">
+                                    </a>
+                                </div>
+                            </div>
+
+                        {% elif post.repost %}
+                        <div class="row">
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.repost.like.count|intword }} </b>
+                                <a data-href='{{postv.get_api_like_url}}' class="like-btn" data-toggle="tooltip"
+                                   data-placement="top" title="Like">
+                                    <img src="{% static 'images/like (2).png' %}"
+                                         class="mb-2" style="cursor:pointer;" width="23" height="23" alt="">
+                                </a>
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.repost.repostcomment_set.count|intword }} </b>
+                                <img onclick="openForm()" data-toggle="tooltip" data-placement="top" title="Comment"
+                                src="{% static 'images/comment (2).png' %}" class="mb-" width="23" height="23" alt="">
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <a class="text-dark" href="{{post.get_repost_url}}">
+                                    <b data-target="#postReposModal" data-toggle="modal">
+                                        {{ post.repost.blogrepost_set.count|intword }}
+                                    </b>
+                                    <img data-toggle="tooltip" data-placement="top" title="Repost"
+                                         src="{% static 'images/retweet (1).png' %}" class="mb-1" width="23" height="23" alt="">
+                                </a>
+                            </div>
+                        </div>
+
+                        {% elif post.post %}
+                        <div class="row">
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.post.like.count|intword }} </b>
+                                <img data-toggle="tooltip" data-placement="top" title="Like" src="{% static 'images/like (2).png' %}"
+                                    class="mb-2" style="cursor:pointer;" width="23" height="23" alt="">
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <b>{{ post.post.blogcomment_set.count|intword }} </b>
+                                <img src="{% static 'images/comment (2).png' %}"
+                                     data-toggle="tooltip" data-placement="top" title="Comment"
+                                     class="mb-" width="23" height="23" alt="">
+                            </div>
+                            <div class="col-lg-4 col-4">
+                                <a class="text-dark" href="{{post.post.get_repost_url}}">
+                                    <b data-target="#postReposModal" data-toggle="modal">
+                                        {{ post.post.blogrepost_set.count|intword }}
+                                    </b>
+                                    <img data-toggle="tooltip" data-placement="top" title="Repost"
+                                         src="{% static 'images/retweet (1).png' %}" class="mb-1" width="23" height="23" alt="">
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+                {% else %}
                 <div class="media">
                     <a class="text-dark" href="{% url 'a_follower_post_view' post.author %}">
                         <img class="rounded-circle article-img" src="{{ post.author.image.url }}" alt="">
@@ -518,6 +824,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}

@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions, serializers
 from users import models
+import requests
 
 
 def register(request):
@@ -230,8 +231,17 @@ def profile_view(request, username):
                 post_notification_count = PostNotification.objects.filter(user=request.user, is_seen=False).count()
                 posts = Post.objects.filter(author=user_profile).order_by("-date_posted")
                 posts_commented = BlogComment.objects.filter(user=user_profile).order_by("-date_posted")
+                reposts_commented = RepostComment.objects.filter(user=user_profile).order_by("-date_posted")
+                combined_comments = sorted(chain(posts_commented, reposts_commented),
+                                           key=lambda post: post.date_posted, reverse=True)
+                combined_comments_count = len(combined_comments)
                 posts_reposted = BlogRepost.objects.filter(user=user_profile).order_by("-date_posted")
                 posts_liked = Post.objects.filter(like=user_profile).order_by("-date_posted")
+                reposts_liked = BlogRepost.objects.filter(like=user_profile).order_by("-date_posted")
+                combined_likes = sorted(chain(posts_liked, reposts_liked),
+                                        key=lambda post: post.date_posted, reverse=True)
+
+                combined_likes_count = len(combined_likes)
                 # editing the next line
                 suggested_followers = user_profile.following.all().exclude(id__in=request.user.following.all()).exclude(
                     id=request.user.id).order_by("?")[:5]
@@ -273,11 +283,30 @@ def profile_view(request, username):
 
                 user_profile_posts = user_profile.post_set.all()
                 media_count = BlogImages.objects.filter(post__in=user_profile_posts).count()
+                recently_viewed_profile = None
+                if "recently_viewed" in request.session:
+                    request.session["recently_viewed"].insert(0, username)
+                    print(request.session["recently_viewed"])
+                    recently_viewed_profile = User.objects.filter(username__in=request.session["recently_viewed"])
+
+                    if len(request.session["recently_viewed"]) > 5:
+                        request.session["recently_viewed"].pop()
+                    # if username in request.session["recently_viewed"]:
+                    #     request.session["recently_viewed"].remove(username)
+
+                else:
+                    request.session["recently_viewed"] = [username]
+
+                print(recently_viewed_profile)
                 context = {
                     "form": form,
                     "posts": posts,
-                    "posts_liked": posts_liked,
+                    "posts_liked": combined_likes,
+                    # "posts_liked": posts_liked,
+                    "recently_viewed_profile": recently_viewed_profile,
+                    "combined_likes_count": combined_likes_count,
                     "posts_commented": posts_commented,
+                    "combined_comments_count": combined_comments_count,
                     "posts_reposted": posts_reposted,
                     "user_profile": user_profile,
                     "suggested_followers": suggested_followers,
