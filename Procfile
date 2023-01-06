@@ -1,1 +1,1 @@
-web: gunicorn Elodimuor.wsgi --log-file -
+web: gunicorn TwitterClone.wsgi --log-file -
